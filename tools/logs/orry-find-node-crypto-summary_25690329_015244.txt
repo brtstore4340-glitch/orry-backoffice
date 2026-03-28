@@ -1,9 +1,0 @@
-ORRY FIND NODE CRYPTO SUMMARY
-RepoRoot: D:\01 Main Work\Boots\Agentic AI\mission-control\orry
-BackupDir: D:\01 Main Work\Boots\Agentic AI\mission-control\orry\tools\backup_orry_find_node_crypto_25690329_015244
-LogFile: D:\01 Main Work\Boots\Agentic AI\mission-control\orry\tools\logs\orry-find-node-crypto_25690329_015244.log
-
-Validate paths and create folders | exit=0 | OK
-Search remaining node:crypto in source | exit=0 | OK
-
-MATCHES: 0

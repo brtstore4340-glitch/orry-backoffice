@@ -9,3 +9,8 @@ dist
 build
 prisma/dev.db
 .env*.local
+tools/backup_*/
+tools/logs/
+tools/LAST_BACKUP_DIR.txt
+flowaccount-openapi-sdk/
+golang-for-devops/
