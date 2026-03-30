@@ -1,0 +1,7 @@
+ALTER TABLE "User"
+  ADD COLUMN IF NOT EXISTS "authUserId" TEXT;
+
+CREATE UNIQUE INDEX IF NOT EXISTS "User_authUserId_key" ON "User"("authUserId");
+
+ALTER TABLE "User"
+  ALTER COLUMN "passwordHash" DROP NOT NULL;

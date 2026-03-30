@@ -1,4 +1,4 @@
-$path = "D:\01 Main Work\Boots\Agentic AI\mission-control\orry\tools\force-orry-nextconfig-build.ps1"
+$path = "D:\01-Main-Work\Boots\Agentic-AI\mission-control\orry\tools\force-orry-nextconfig-build.ps1"
 
 if (-not (Test-Path -LiteralPath $path)) {
     throw "File not found: $path"

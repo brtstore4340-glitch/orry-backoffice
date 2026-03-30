@@ -1,0 +1,16 @@
+https://kvyjgkhamwvelxveduvk.supabase.co
+
+$Psql = "C:\Program Files\PostgreSQL\17\bin\psql.exe"
+$env:PGPASSWORD = "aYrON1ryyWTiVWpR"
+& $Psql "host=db.kvyjgkhamwvelxveduvk.supabase.co port=5432 dbname=postgres user=postgres sslmode=require" -c "select version();"
+
+
+Set-Location "D:\01-Main-Work\Boots\Agentic-AI\mission-control\orry"
+
+nslookup db.kvyjgkhamwvelxveduvk.supabase.co
+[System.Net.Dns]::GetHostAddresses("db.kvyjgkhamwvelxveduvk.supabase.co")
+
+
+nslookup db.kvyjgkhamwvelxveduvk.supabase.co
+[System.Net.Dns]::GetHostAddresses("db.kvyjgkhamwvelxveduvk.supabase.co")
+Get-Content ".\tools\deploy-orry-direct.ps1" | Select-String "db\.", "supabase.co", "dnfcztcztoaovkhrpxbh", "csulanaivoltmubaktvn", "kvyjgkhamwvelxveduvk"

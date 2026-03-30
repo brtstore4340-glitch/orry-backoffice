@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import Link from "next/link";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { MetricStrip, Workspace } from "@/components/app-shell/workspace";
@@ -103,7 +104,7 @@ export default async function DashboardPage() {
               <article key={product.id} className="subtle-panel list-row emphasis-row">
                 <div>
                   <strong>{product.name}</strong>
-                  <p>{product.sku} · reorder at {product.reorderPoint}</p>
+                  <p>{product.sku} ยท reorder at {product.reorderPoint}</p>
                 </div>
                 <div className="value-block">
                   <strong>{product.stockOnHand}</strong>

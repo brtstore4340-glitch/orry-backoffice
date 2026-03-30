@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs';
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
@@ -61,7 +62,7 @@ export default async function SettingsPage() {
           </div>
           <ul className="bullet-stack settings-notes">
             <li>Database connectivity is driven by <code>DATABASE_URL</code> and <code>DIRECT_URL</code>.</li>
-            <li>Signed ORRY session cookies run against the ORRY user table stored in Supabase Postgres.</li>
+            <li>Supabase Auth manages sessions while the ORRY user table remains the source of truth for role, approval, and activity checks.</li>
             <li>Attachment metadata is modeled now; document uploads should target <code>SUPABASE_STORAGE_BUCKET</code>.</li>
             <li>Public project URL and publishable key are surfaced via the <code>NEXT_PUBLIC_SUPABASE_*</code> variables.</li>
           </ul>
@@ -90,3 +91,4 @@ export default async function SettingsPage() {
     </>
   );
 }
+

@@ -6,7 +6,7 @@ ORRY back-office workspace for accounts, catalog, proposals, orders, billing, re
 
 - Next.js App Router
 - Supabase Postgres via Prisma
-- Signed ORRY cookie sessions backed by the ORRY user table
+- Supabase Auth sessions mapped to the ORRY user table
 - ORRY-branded dark premium UI system
 
 ## Local bootstrap
@@ -32,8 +32,11 @@ Required in production:
 - `AUTH_SECRET`
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `APP_BASE_URL`
+- `RESEND_API_KEY`
+- `EMAIL_FROM`
 
 Optional:
 
-- `SUPABASE_SERVICE_ROLE_KEY` only if a trusted backend path explicitly needs it
 - `SUPABASE_STORAGE_BUCKET`

@@ -38,7 +38,13 @@ async function main() {
     data: {
       email: "admin@orry.local",
       name: "Ariya Chanin",
+      firstName: "Ariya",
+      lastName: "Chanin",
+      employeeId: "ADM-001",
+      dateOfBirth: new Date("1990-04-18"),
       passwordHash: hashPassword("demo-admin"),
+      approvalStatus: "APPROVED",
+      approvedAt: new Date("2026-03-01"),
       roleId: roleMap.ADMIN
     }
   });
@@ -47,7 +53,13 @@ async function main() {
     data: {
       email: "finance@orry.local",
       name: "Pim Narin",
+      firstName: "Pim",
+      lastName: "Narin",
+      employeeId: "FIN-001",
+      dateOfBirth: new Date("1992-09-09"),
       passwordHash: hashPassword("demo-finance"),
+      approvalStatus: "APPROVED",
+      approvedAt: new Date("2026-03-01"),
       roleId: roleMap.FINANCE
     }
   });

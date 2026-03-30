@@ -73,7 +73,7 @@ function Run-Step {
     }
 }
 
-$RepoRoot = 'D:\01 Main Work\Boots\Agentic AI\mission-control\orry'
+$RepoRoot = 'D:\01-Main-Work\Boots\Agentic-AI\mission-control\orry'
 $ToolsDir = Join-Path $RepoRoot 'tools'
 $LogsDir = Join-Path $ToolsDir 'logs'
 $TimeTag = Get-Date -Format 'yyyyMMdd_HHmmss'
@@ -214,7 +214,7 @@ Write-Host ('Summary: ' + $SummaryFile)
 exit 0
 '@
 
-$target = "D:\01 Main Work\Boots\Agentic AI\mission-control\orry\tools\fix-prisma7-config-v2.ps1"
+$target = "D:\01-Main-Work\Boots\Agentic-AI\mission-control\orry\tools\fix-prisma7-config-v2.ps1"
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText($target, $script, $utf8NoBom)
 Write-Host "Created: $target"

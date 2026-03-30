@@ -1,7 +1,10 @@
 const toneClass: Record<string, string> = {
   DRAFT: "neutral",
   AWAITING_APPROVAL: "warning",
-  APPROVED: "info",
+  APPROVED: "success",
+  PENDING: "warning",
+  REJECTED: "danger",
+  INACTIVE: "danger",
   ISSUED: "info",
   FULFILLED: "success",
   PAID: "success",

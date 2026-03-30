@@ -3,7 +3,7 @@ import Link from "next/link";
 import { auth, signOut } from "@/auth";
 import { NavLink } from "@/components/app-shell/nav-link";
 
-const navItems = [
+const baseNavItems = [
   { href: "/dashboard", label: "Command" },
   { href: "/contacts", label: "Accounts" },
   { href: "/catalog", label: "Catalog" },
@@ -27,6 +27,9 @@ export async function AppShell({ children }: { children: ReactNode }) {
     day: "numeric",
     year: "numeric"
   }).format(new Date());
+  const navItems = session?.user?.role === "ADMIN"
+    ? [...baseNavItems, { href: "/users", label: "Users" }]
+    : baseNavItems;
 
   return (
     <div className="shell-frame">

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import Link from "next/link";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { DataTable } from "@/components/data-table/data-table";

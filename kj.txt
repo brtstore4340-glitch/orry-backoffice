@@ -1,0 +1,5 @@
+7	Backwall Medicine
+5	Mass Skincare
+10	Dermo skincare
+18	Medicated skinc
+33	Haircare

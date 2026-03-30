@@ -14,3 +14,5 @@ tools/logs/
 tools/LAST_BACKUP_DIR.txt
 flowaccount-openapi-sdk/
 golang-for-devops/
+.vercel
+.env*.local

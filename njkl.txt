@@ -1,0 +1,28 @@
+$Psql = "C:\Program Files\PostgreSQL\17\bin\psql.exe"
+$env:PGPASSWORD = "aYrON1ryyWTiVWpR"
+
+& $Psql "hostaddr=2406:da14:271:9911:7db5:3337:661a:1fc8 port=5432 dbname=postgres user=postgres sslmode=require" -c "select version();"
+
+
+$Psql = "C:\Program Files\PostgreSQL\17\bin\psql.exe"
+$env:PGPASSWORD = "fYjjS1X5DkGhuszQ"
+
+& $Psql "hostaddr=2406:da14:271:9911:7db5:3337:661a:1fc8 port=5432 dbname=postgres user=postgres sslmode=require" -c "select version();"
+
+
+$env:SUPABASE_STORAGE_BUCKET = "orry-documents"
+powershell -ExecutionPolicy Bypass -File ".\tools\deploy-orry-direct.ps1" -DbPassword "aYrON1ryyWTiVWpR"
+
+
+[string]$DbHost = "db.kvyjgkhamwvelxveduvk.supabase.co",      >>
+ParserError:
+Line |
+   1 |  [string]$DbHost = "db.kvyjgkhamwvelxveduvk.supabase.co",
+     |                                                          ~
+     | Missing expression after ','.
+PS D:\01-Main-Work\Boots\Agentic-AI\mission-control\orry> $Psql = "C:\Program Files\PostgreSQL\17\bin\psql.exe"
+PS D:\01-Main-Work\Boots\Agentic-AI\mission-control\orry> $env:PGPASSWORD = "aYrON1ryyWTiVWpR"
+PS D:\01-Main-Work\Boots\Agentic-AI\mission-control\orry>
+PS D:\01-Main-Work\Boots\Agentic-AI\mission-control\orry> & $Psql "hostaddr=2406:da14:271:9911:7db5:3337:661a:1fc8 port=5432 dbname=postgres user=postgres sslmode=require" -c "select version();"
+psql: error: connection to server at "2406:da14:271:9911:7db5:3337:661a:1fc8", port 5432 failed: Network is unreachable (0x00002743/10051)
+        Is the server running on that host and accepting TCP/IP connections?

@@ -1,0 +1,3 @@
+display_name: Supabase ORRY Auth
+short_description: Guardrails for ORRY Supabase-backed auth and user management.
+default_prompt: Review and implement ORRY auth, approval-gated access, password reset, and credential email flows without widening UI scope.

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { PageHeader } from "@/components/app-shell/page-header";
 import { DocumentListPage } from "@/components/documents/document-list-page";
 

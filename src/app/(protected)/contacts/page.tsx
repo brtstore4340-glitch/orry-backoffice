@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { PageHeader } from "@/components/app-shell/page-header";
 import { DataTable } from "@/components/data-table/data-table";
 import { SimpleForm } from "@/components/forms/simple-form";

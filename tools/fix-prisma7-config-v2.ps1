@@ -72,7 +72,7 @@ function Run-Step {
     }
 }
 
-$RepoRoot = 'D:\01 Main Work\Boots\Agentic AI\mission-control\orry'
+$RepoRoot = 'D:\01-Main-Work\Boots\Agentic-AI\mission-control\orry'
 $ToolsDir = Join-Path $RepoRoot 'tools'
 $LogsDir = Join-Path $ToolsDir 'logs'
 $TimeTag = Get-Date -Format 'yyyyMMdd_HHmmss'

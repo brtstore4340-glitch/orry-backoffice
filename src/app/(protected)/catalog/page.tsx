@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { PageHeader } from "@/components/app-shell/page-header";
 import { DataTable } from "@/components/data-table/data-table";
 import { Workspace } from "@/components/app-shell/workspace";
@@ -48,7 +49,7 @@ export default async function CatalogPage() {
                 <article key={product.id} className="subtle-panel list-row emphasis-row">
                   <div>
                     <strong>{product.name}</strong>
-                    <p>{product.sku} · {product.kind.replaceAll("_", " ")}</p>
+                    <p>{product.sku} ยท {product.kind.replaceAll("_", " ")}</p>
                   </div>
                   <div className="value-block">
                     <strong>{product.stockOnHand}</strong>
