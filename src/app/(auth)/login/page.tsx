@@ -1,15 +1,21 @@
 export const runtime = "nodejs";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth, signIn } from "@/auth";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 async function loginAction(formData: FormData) {
   "use server";
-  await signIn("credentials", {
-    email: String(formData.get("email") ?? ""),
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.auth.signInWithPassword({
+    email: String(formData.get("email") ?? "").trim().toLowerCase(),
     password: String(formData.get("password") ?? ""),
-    redirectTo: "/dashboard",
   });
+
+  if (error) {
+    redirect("/login?error=invalid");
+  }
+
+  redirect("/dashboard");
 }
 
 export default async function LoginPage({
@@ -17,8 +23,12 @@ export default async function LoginPage({
 }: {
   searchParams?: Promise<{ error?: string; reset?: string }>;
 }) {
-  const session = await auth();
-  if (session?.user) {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
     redirect("/dashboard");
   }
 
@@ -53,11 +63,11 @@ export default async function LoginPage({
           <form action={loginAction} className="stack-form">
             <label>
               <span>Email</span>
-              <input className="input" name="email" type="email" />
+              <input className="input" name="email" type="email" autocomplete="email" />
             </label>
             <label>
               <span>Password</span>
-              <input className="input" name="password" type="password" />
+              <input className="input" name="password" type="password" autocomplete="current-password" />
             </label>
             <button className="button" type="submit">Enter workspace</button>
           </form>
