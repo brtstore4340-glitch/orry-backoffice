@@ -1,36 +1,19 @@
 import "server-only";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { getPrisma } from "@/lib/db";
-import { getRuntimeEnv } from "@/lib/env";
-import { verifyPassword } from "@/lib/security";
 import { recordSecurityEvent } from "@/lib/audit";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { RoleCode, UserSession } from "@/lib/types";
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOGIN_WINDOW_MS = 15 * 60 * 1000;
-const BLOCKED_BAN_DURATION = "876000h";
+const DEFAULT_BOOTSTRAP_ROLE: RoleCode = "SALES";
 
 type SessionResult = {
   user: UserSession;
 };
 
-type AppUserRecord = {
-  id: string;
-  authUserId: string | null;
-  email: string;
-  passwordHash: string | null;
-  name: string;
-  firstName: string;
-  lastName: string;
-  employeeId: string | null;
-  dateOfBirth: Date | null;
-  active: boolean;
-  approvalStatus: "PENDING" | "APPROVED" | "REJECTED";
-  role: { code: RoleCode };
-};
+type AuthMetadata = Record<string, unknown> | null | undefined;
 
 declare global {
   var orryLoginRateLimit: Map<string, { count: number; expiresAt: number }> | undefined;
@@ -84,149 +67,58 @@ function clearFailedAttempts(key: string) {
   getRateLimitStore().delete(key);
 }
 
-function isEligibleForAccess(user: Pick<AppUserRecord, "active" | "approvalStatus">) {
-  return user.active && user.approvalStatus === "APPROVED";
+function readString(value: unknown) {
+  return typeof value === "string" && value.trim() ? value : undefined;
 }
 
-function toSession(user: AppUserRecord): SessionResult {
+function resolveDisplayName(userMetadata: AuthMetadata, email: string) {
+  const directName = readString(userMetadata?.name);
+  if (directName) {
+    return directName;
+  }
+
+  const firstName = readString(userMetadata?.first_name);
+  const lastName = readString(userMetadata?.last_name);
+  const fullName = [firstName, lastName].filter(Boolean).join(" ").trim();
+  if (fullName) {
+    return fullName;
+  }
+
+  const emailPrefix = email.split("@")[0]?.trim();
+  return emailPrefix || "ORRY operator";
+}
+
+function isEligibleForAccess(appMetadata: AuthMetadata) {
+  return appMetadata?.active !== false && appMetadata?.approval_status !== "PENDING" && appMetadata?.approval_status !== "REJECTED";
+}
+
+function resolveRoleCode(value: unknown): RoleCode {
+  switch (value) {
+    case "ADMIN":
+    case "SALES":
+    case "FINANCE":
+    case "OPERATIONS":
+    case "EXECUTIVE":
+      return value;
+    default:
+      return DEFAULT_BOOTSTRAP_ROLE;
+  }
+}
+
+function resolveActorId(authUser: { id: string; app_metadata?: AuthMetadata }) {
+  return readString(authUser.app_metadata?.app_user_id) ?? authUser.id;
+}
+
+function toSession(authUser: { id: string; email?: string | null; app_metadata?: AuthMetadata; user_metadata?: AuthMetadata }, role: RoleCode): SessionResult {
+  const email = authUser.email?.trim().toLowerCase() || "";
   return {
     user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role.code,
+      id: resolveActorId(authUser),
+      name: resolveDisplayName(authUser.user_metadata, email),
+      email,
+      role,
     },
   };
-}
-
-async function findAppUser(where: { authUserId?: string; email?: string }) {
-  const prisma = getPrisma();
-  if (!prisma) {
-    return null;
-  }
-
-  if (where.authUserId) {
-    const direct = await prisma.user.findUnique({
-      where: { authUserId: where.authUserId },
-      include: { role: true },
-    });
-
-    if (direct) {
-      return direct as AppUserRecord;
-    }
-  }
-
-  if (!where.email) {
-    return null;
-  }
-
-  const fallback = await prisma.user.findUnique({
-    where: { email: where.email.toLowerCase() },
-    include: { role: true },
-  });
-
-  if (!fallback) {
-    return null;
-  }
-
-  if (!fallback.authUserId && where.authUserId) {
-    const linked = await prisma.user.update({
-      where: { id: fallback.id },
-      data: { authUserId: where.authUserId },
-      include: { role: true },
-    });
-    return linked as AppUserRecord;
-  }
-
-  return fallback as AppUserRecord;
-}
-
-function buildUserMetadata(user: AppUserRecord) {
-  return {
-    name: user.name,
-    first_name: user.firstName,
-    last_name: user.lastName,
-    employee_id: user.employeeId ?? undefined,
-    date_of_birth: user.dateOfBirth ? user.dateOfBirth.toISOString().slice(0, 10) : undefined,
-  };
-}
-
-function buildAppMetadata(user: AppUserRecord) {
-  return {
-    app_user_id: user.id,
-    role: user.role.code,
-    approval_status: user.approvalStatus,
-    active: user.active,
-  };
-}
-
-async function syncSupabaseIdentity(user: AppUserRecord, password: string) {
-  const prisma = getPrisma();
-  if (!prisma) {
-    throw new Error("DATABASE_UNAVAILABLE");
-  }
-
-  const admin = getSupabaseAdminClient();
-  const authPayload = {
-    email: user.email,
-    password,
-    email_confirm: true,
-    user_metadata: buildUserMetadata(user),
-    app_metadata: buildAppMetadata(user),
-    ban_duration: isEligibleForAccess(user) ? "none" : BLOCKED_BAN_DURATION,
-  };
-
-  if (user.authUserId) {
-    const { data, error } = await admin.auth.admin.updateUserById(user.authUserId, authPayload);
-    if (error || !data.user) {
-      throw error ?? new Error("SUPABASE_AUTH_UPDATE_FAILED");
-    }
-
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { passwordHash: null },
-    });
-
-    return data.user.id;
-  }
-
-  const { data, error } = await admin.auth.admin.createUser(authPayload);
-  if (error || !data.user) {
-    throw error ?? new Error("SUPABASE_AUTH_CREATE_FAILED");
-  }
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      authUserId: data.user.id,
-      passwordHash: null,
-    },
-  });
-
-  return data.user.id;
-}
-
-async function migrateLegacyUserOnLogin(email: string, password: string) {
-  const prisma = getPrisma();
-  if (!prisma) {
-    return false;
-  }
-
-  const user = (await prisma.user.findUnique({
-    where: { email },
-    include: { role: true },
-  })) as AppUserRecord | null;
-
-  if (!user?.passwordHash || !verifyPassword(password, user.passwordHash)) {
-    return false;
-  }
-
-  try {
-    await syncSupabaseIdentity(user, password);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 async function resolveSupabaseSession() {
@@ -240,13 +132,12 @@ async function resolveSupabaseSession() {
       return null;
     }
 
-    const appUser = await findAppUser({ authUserId: authUser.id, email: authUser.email ?? undefined });
-    if (!appUser || !isEligibleForAccess(appUser)) {
+    if (!isEligibleForAccess(authUser.app_metadata)) {
       await supabase.auth.signOut();
       return null;
     }
 
-    return toSession(appUser);
+    return toSession(authUser, resolveRoleCode(authUser.app_metadata?.role));
   } catch {
     return null;
   }
@@ -276,20 +167,10 @@ export async function signIn(
   }
 
   const supabase = await createSupabaseServerClient();
-  let signInResult = await supabase.auth.signInWithPassword({
+  const signInResult = await supabase.auth.signInWithPassword({
     email: normalizedEmail,
     password: options.password,
   });
-
-  if (signInResult.error || !signInResult.data.user) {
-    const migrated = await migrateLegacyUserOnLogin(normalizedEmail, options.password);
-    if (migrated) {
-      signInResult = await supabase.auth.signInWithPassword({
-        email: normalizedEmail,
-        password: options.password,
-      });
-    }
-  }
 
   if (signInResult.error || !signInResult.data.user) {
     registerFailedAttempt(rateLimitKey);
@@ -302,20 +183,15 @@ export async function signIn(
     redirect("/login?error=invalid");
   }
 
-  const appUser = await findAppUser({
-    authUserId: signInResult.data.user.id,
-    email: signInResult.data.user.email ?? normalizedEmail,
-  });
-
-  if (!appUser || !isEligibleForAccess(appUser)) {
+  if (!isEligibleForAccess(signInResult.data.user.app_metadata)) {
     await supabase.auth.signOut();
     registerFailedAttempt(rateLimitKey);
     await recordSecurityEvent({
-      actorId: appUser?.id,
+      actorId: resolveActorId(signInResult.data.user),
       action: "auth.login.failed",
       success: false,
       targetType: "User",
-      targetId: appUser?.id,
+      targetId: resolveActorId(signInResult.data.user),
       detail: "Login denied because the account is not active and approved.",
     });
     redirect("/login?error=invalid");
@@ -324,11 +200,11 @@ export async function signIn(
   clearFailedAttempts(rateLimitKey);
 
   await recordSecurityEvent({
-    actorId: appUser.id,
+    actorId: resolveActorId(signInResult.data.user),
     action: "auth.login.success",
     success: true,
     targetType: "User",
-    targetId: appUser.id,
+    targetId: resolveActorId(signInResult.data.user),
     detail: "Login succeeded through Supabase Auth.",
   });
 

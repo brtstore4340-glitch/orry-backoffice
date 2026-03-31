@@ -1,0 +1,33 @@
+$DB_URL = 'postgresql://postgres.csulanaivoltmubaktvn:SvD2iFyJeOtfZboP@db.csulanaivoltmubaktvn.supabase.co:5432/postgres'
+
+npx supabase db dump --db-url $DB_URL -f roles.sql --role-only
+npx supabase db dump --db-url $DB_URL -f schema.sql
+npx supabase db dump --db-url $DB_URL -f data.sql --use-copy --data-only -x "storage.buckets_vectors" -x "storage.vector_indexes"
+
+
+
+pg_dump
+  --dbname "postgresql://postgres.csulanaivoltmubaktvn@db.csulanaivoltmubaktvn.supabase.co:5432/postgres"
+  --schema-only
+  --file "schema.sql"
+
+pg_dump `
+  --dbname "postgresql://postgres.csulanaivoltmubaktvn@db.csulanaivoltmubaktvn.supabase.co:5432/postgres" `
+  --data-only `
+  --inserts `
+  --file "data.sql"
+
+
+Set-Location "D:\01 Main Work\Boots\Agentic AI\mission-control\orry"
+
+# ล้างค่ารหัสผ่านเก่าที่อาจค้างใน session
+Remove-Item Env:SUPABASE_DB_PASSWORD -ErrorAction SilentlyContinue
+
+# ลิงก์กับโปรเจกต์ใหม่อีกครั้ง
+npx supabase link --project-ref fvzfrucfydlusahgcgdc
+
+# ใส่ "รหัสผ่านฐานข้อมูลของโปรเจกต์ fvzfrucfydlusahgcgdc" จาก Supabase Dashboard > Project Settings > Database
+$env:SUPABASE_DB_PASSWORD = "nY17f9HgZBuiKCl5"
+
+# push migrations
+npx supabase db push --debug

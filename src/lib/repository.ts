@@ -47,49 +47,53 @@ function mapDocument(document: {
 }
 
 export async function getDashboardSnapshot(): Promise<DashboardSnapshot> {
-  const prisma = getPrisma() as any;
-  if (!prisma) return fallbackDashboard;
+  try {
+    const prisma = getPrisma() as any;
+    if (!prisma) return fallbackDashboard;
 
-  const [documents, products, activities] = await Promise.all([
-    prisma.businessDocument.findMany({ include: { contact: true }, orderBy: { issuedAt: "desc" }, take: 6 }),
-    prisma.product.findMany({ orderBy: { stockOnHand: "asc" }, take: 6 }),
-    prisma.documentActivity.findMany({ include: { actor: true }, orderBy: { createdAt: "desc" }, take: 6 })
-  ]);
+    const [documents, products, activities] = await Promise.all([
+      prisma.businessDocument.findMany({ include: { contact: true }, orderBy: { issuedAt: "desc" }, take: 6 }),
+      prisma.product.findMany({ orderBy: { stockOnHand: "asc" }, take: 6 }),
+      prisma.documentActivity.findMany({ include: { actor: true }, orderBy: { createdAt: "desc" }, take: 6 })
+    ]);
 
-  const issuedTotal = documents.reduce((sum: number, document: any) => sum + toNumber(document.totalAmount), 0);
-  const awaiting = documents.filter((document: any) => document.status === "AWAITING_APPROVAL").length;
+    const issuedTotal = documents.reduce((sum: number, document: any) => sum + toNumber(document.totalAmount), 0);
+    const awaiting = documents.filter((document: any) => document.status === "AWAITING_APPROVAL").length;
 
-  return {
-    metrics: [
-      { label: "Booked billing", value: new Intl.NumberFormat("en-US", { style: "currency", currency: "THB" }).format(issuedTotal), hint: "Issued and collectible" },
-      { label: "Collections landed", value: new Intl.NumberFormat("en-US", { style: "currency", currency: "THB" }).format(0), hint: "Payment ledger total" },
-      { label: "Approvals waiting", value: String(awaiting), hint: "Needs decision" },
-      { label: "Tracked documents", value: String(documents.length), hint: "Across proposal to receipt" }
-    ],
-    urgentQueue: [
-      { area: "Approvals", status: awaiting ? `${awaiting} waiting` : "Clear", note: "Review proposal and billing transitions." },
-      { area: "Collections", status: "Operational", note: "Use billing and receipts pages to monitor settlement." },
-      { area: "Inventory", status: "Monitor", note: "Reorder when stock approaches the threshold." }
-    ],
-    recentDocuments: documents.map(mapDocument),
-    lowStock: products.map((product: any) => ({
-      id: product.id,
-      sku: product.sku,
-      name: product.name,
-      kind: product.kind,
-      stockOnHand: product.stockOnHand,
-      reorderPoint: product.reorderPoint,
-      unitPrice: toNumber(product.unitPrice),
-      barcode: product.barcode ?? undefined
-    })),
-    recentActivity: activities.map((activity: any) => ({
-      id: activity.id,
-      action: activity.action,
-      detail: activity.detail ?? "",
-      createdAt: activity.createdAt.toISOString(),
-      actor: activity.actor?.name ?? undefined
-    }))
-  };
+    return {
+      metrics: [
+        { label: "Booked billing", value: new Intl.NumberFormat("en-US", { style: "currency", currency: "THB" }).format(issuedTotal), hint: "Issued and collectible" },
+        { label: "Collections landed", value: new Intl.NumberFormat("en-US", { style: "currency", currency: "THB" }).format(0), hint: "Payment ledger total" },
+        { label: "Approvals waiting", value: String(awaiting), hint: "Needs decision" },
+        { label: "Tracked documents", value: String(documents.length), hint: "Across proposal to receipt" }
+      ],
+      urgentQueue: [
+        { area: "Approvals", status: awaiting ? `${awaiting} waiting` : "Clear", note: "Review proposal and billing transitions." },
+        { area: "Collections", status: "Operational", note: "Use billing and receipts pages to monitor settlement." },
+        { area: "Inventory", status: "Monitor", note: "Reorder when stock approaches the threshold." }
+      ],
+      recentDocuments: documents.map(mapDocument),
+      lowStock: products.map((product: any) => ({
+        id: product.id,
+        sku: product.sku,
+        name: product.name,
+        kind: product.kind,
+        stockOnHand: product.stockOnHand,
+        reorderPoint: product.reorderPoint,
+        unitPrice: toNumber(product.unitPrice),
+        barcode: product.barcode ?? undefined
+      })),
+      recentActivity: activities.map((activity: any) => ({
+        id: activity.id,
+        action: activity.action,
+        detail: activity.detail ?? "",
+        createdAt: activity.createdAt.toISOString(),
+        actor: activity.actor?.name ?? undefined
+      }))
+    };
+  } catch {
+    return fallbackDashboard;
+  }
 }
 
 export async function getContacts(): Promise<ContactSummary[]> {

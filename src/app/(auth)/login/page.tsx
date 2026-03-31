@@ -6,13 +6,19 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 async function loginAction(formData: FormData) {
   "use server";
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.signInWithPassword({
+  const signIn = await supabase.auth.signInWithPassword({
     email: String(formData.get("email") ?? "").trim().toLowerCase(),
     password: String(formData.get("password") ?? ""),
   });
 
-  if (error) {
-    redirect("/login?error=invalid");
+  if (signIn.error) {
+    const reason = String(signIn.error.message ?? signIn.error.name ?? "unknown");
+    redirect(`/login?error=invalid&reason=${encodeURIComponent(reason)}`);
+  }
+
+  // If Supabase did not return a session (cookies may not have been set), surface that for debugging
+  if (!signIn.data?.session) {
+    redirect(`/login?error=invalid&reason=${encodeURIComponent('no-session')}`);
   }
 
   redirect("/dashboard");
@@ -63,11 +69,11 @@ export default async function LoginPage({
           <form action={loginAction} className="stack-form">
             <label>
               <span>Email</span>
-              <input className="input" name="email" type="email" autocomplete="email" />
+              <input className="input" name="email" type="email" autoComplete="email" />
             </label>
             <label>
               <span>Password</span>
-              <input className="input" name="password" type="password" autocomplete="current-password" />
+              <input className="input" name="password" type="password" autoComplete="current-password" />
             </label>
             <button className="button" type="submit">Enter workspace</button>
           </form>

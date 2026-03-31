@@ -32,7 +32,13 @@ async function getRequestContext() {
 }
 
 export async function recordSecurityEvent(input: SecurityEventInput) {
-  const prisma = getPrisma() as any;
+  let prisma: any;
+  try {
+    prisma = getPrisma() as any;
+  } catch {
+    return;
+  }
+
   if (!prisma) {
     return;
   }

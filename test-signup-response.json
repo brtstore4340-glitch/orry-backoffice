@@ -1,0 +1,1 @@
+{"signUp":{"data":{"user":null,"session":null},"error":{"__isAuthError":true,"name":"AuthApiError","status":400,"code":"email_address_invalid"}}}
