@@ -1,0 +1,9 @@
+HTTP/1.1 303 See Other
+Vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Location: /login?error=invalid
+Date: Tue, 31 Mar 2026 14:39:06 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+

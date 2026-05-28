@@ -1,4 +1,5 @@
 export const runtime = "nodejs";
+
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
@@ -13,7 +14,7 @@ async function registerAction(formData: FormData) {
       firstName: String(formData.get("firstName") ?? ""),
       lastName: String(formData.get("lastName") ?? ""),
       employeeId: String(formData.get("employeeId") ?? ""),
-      dateOfBirth: String(formData.get("dateOfBirth") ?? ""),
+      dateOfBirth: String(formData.get("dateOfBirth") ?? "")
     });
     redirect("/register?status=submitted");
   } catch (error) {
@@ -25,7 +26,7 @@ async function registerAction(formData: FormData) {
 }
 
 export default async function RegisterPage({
-  searchParams,
+  searchParams
 }: {
   searchParams?: Promise<{ status?: string; error?: string }>;
 }) {
@@ -38,60 +39,84 @@ export default async function RegisterPage({
 
   return (
     <main className="login-page">
-      <div className="login-shell chrome-panel">
+      <div className="auth-stage">
+        <div className="auth-stage-bar">
+          <div className="auth-brand-lockup">
+            <span className="auth-brand-mark">O</span>
+            <div className="auth-brand-copy">
+              <strong>ORRY Serenity Kiss</strong>
+              <span>Request back-office access</span>
+            </div>
+          </div>
+          <span className="topbar-chip">Approval workflow</span>
+        </div>
+        <div className="login-shell chrome-panel auth-shell">
         <section className="login-art">
           <div className="stack-list">
             <span className="eyebrow">ORRY Serenity Kiss</span>
-            <h1>Register for controlled back-office access.</h1>
-            <p>New registrations stay pending until an administrator approves the account. Access never opens automatically.</p>
+            <h1>ขอสิทธิ์เข้าถึงหลังบ้าน</h1>
+            <p>บัญชีใหม่จะถูกสร้างในสถานะรออนุมัติและต้องผ่านการตรวจสอบก่อนใช้งานจริง</p>
+          </div>
+          <div className="auth-highlight-row">
+            <article className="auth-highlight-card subtle-panel">
+              <span>Identity</span>
+              <strong>ข้อมูลผู้ใช้งานจริง</strong>
+              <p>แบบฟอร์มนี้ยังใช้ข้อมูลเดียวกับ workflow การอนุมัติผู้ใช้งานในระบบปัจจุบัน</p>
+            </article>
+            <article className="auth-highlight-card subtle-panel">
+              <span>Delivery</span>
+              <strong>Temporary password by email</strong>
+              <p>การส่งข้อมูลยืนยันและรหัสผ่านชั่วคราวยังเป็นไปตามการตั้งค่าการส่งอีเมลเดิม</p>
+            </article>
           </div>
           <div className="login-feature-grid">
             <article className="subtle-panel login-feature-card">
-              <strong>Approval required</strong>
-              <p>Pending, rejected, and inactive accounts are blocked server-side through ORRY and Supabase Auth.</p>
+              <strong>อนุมัติจากผู้ดูแลระบบ</strong>
+              <p>ระบบจะไม่เปิดสิทธิ์ใช้งานอัตโนมัติจนกว่าจะมีผู้อนุมัติ</p>
             </article>
             <article className="subtle-panel login-feature-card">
-              <strong>Credential delivery</strong>
-              <p>Temporary credentials are created server-side and delivered only through the configured mail transport.</p>
+              <strong>ส่งรหัสผ่านชั่วคราว</strong>
+              <p>รหัสผ่านเริ่มต้นและเหตุการณ์สำคัญจะถูกส่งผ่านอีเมลตามการตั้งค่าระบบ</p>
             </article>
           </div>
         </section>
         <section className="login-form">
           <div>
-            <span className="eyebrow">Registration request</span>
-            <h2>Create request</h2>
-            <p>Enter your company identity details exactly as they should appear in ORRY.</p>
-            {search?.status === "submitted" ? <p className="security-note success-note">Registration submitted. Please wait for administrator approval and check your email.</p> : null}
-            {search?.error === "email" ? <p className="security-note danger-note">Registration could not be completed at this time. Please try again later or contact an administrator.</p> : null}
-            {search?.error === "failed" ? <p className="security-note danger-note">Registration could not be completed.</p> : null}
+            <span className="eyebrow">คำขอสมัคร</span>
+            <h2>กรอกข้อมูลผู้ใช้งาน</h2>
+            <p>ข้อมูลต้องตรงกับบัตรพนักงานและข้อมูลติดต่อที่ใช้จริง</p>
+            {search?.status === "submitted" ? <p className="security-note success-note">ส่งคำขอเรียบร้อยแล้ว กรุณารอการอนุมัติจากผู้ดูแลระบบ</p> : null}
+            {search?.error === "email" ? <p className="security-note danger-note">ไม่สามารถส่งอีเมลได้ในขณะนี้ กรุณาลองใหม่ภายหลัง</p> : null}
+            {search?.error === "failed" ? <p className="security-note danger-note">ไม่สามารถบันทึกคำขอได้</p> : null}
           </div>
-          <form action={registerAction} className="stack-form form-grid two-column-form">
+          <form action={registerAction} className="stack-form form-grid two-column-form auth-form-panel">
             <label>
-              <span>Email</span>
+              <span>อีเมล</span>
               <input className="input" name="email" type="email" required />
             </label>
             <label>
-              <span>Employee ID</span>
+              <span>รหัสพนักงาน</span>
               <input className="input" name="employeeId" type="text" required />
             </label>
             <label>
-              <span>First Name</span>
+              <span>ชื่อ</span>
               <input className="input" name="firstName" type="text" required />
             </label>
             <label>
-              <span>Last Name</span>
+              <span>นามสกุล</span>
               <input className="input" name="lastName" type="text" required />
             </label>
             <label className="full-span">
-              <span>Date of Birth</span>
+              <span>วันเกิด</span>
               <input className="input" name="dateOfBirth" type="date" required />
             </label>
             <div className="full-span auth-links-row">
-              <button className="button" type="submit">Submit registration</button>
-              <Link href="/login" className="inline-link">Back to sign in</Link>
+              <button className="button" type="submit">ส่งคำขอสมัคร</button>
+              <Link href="/login" className="inline-link">กลับไปหน้าเข้าสู่ระบบ</Link>
             </div>
           </form>
         </section>
+        </div>
       </div>
     </main>
   );

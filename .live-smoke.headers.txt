@@ -1,0 +1,9 @@
+HTTP/1.1 303 See Other
+Vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+Cache-Control: no-store, must-revalidate
+Location: /documents/quotations/cmnexf4yw0002noe4tzj5ei1y
+Date: Tue, 31 Mar 2026 18:04:24 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+

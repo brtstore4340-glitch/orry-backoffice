@@ -217,7 +217,7 @@ async function createAppUserRecord(input: {
       active: input.active,
       approvalStatus: input.approvalStatus,
       approvedAt: input.approvalStatus === "APPROVED" ? new Date() : null,
-      rejectedAt: input.approvalStatus === "REJECTED" ? new Date() : null,
+      rejectedAt: null,
       roleId: role.id,
     },
     include: { role: true },
@@ -562,7 +562,6 @@ export async function requestPasswordReset(emailInput: string) {
 
     const actionLink =
       data?.properties?.action_link ??
-      data?.properties?.actionLink ??
       (data as any)?.action_link ??
       (data as any)?.actionLink;
 

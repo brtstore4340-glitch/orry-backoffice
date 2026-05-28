@@ -5,7 +5,7 @@ export function SimpleForm({ title, description, children }: { title: string; de
     <section className="workspace chrome-panel form-shell">
       <div className="section-heading">
         <div>
-          <span className="eyebrow">Input surface</span>
+          <span className="eyebrow">พื้นที่ป้อนข้อมูล</span>
           <h2>{title}</h2>
           <p>{description}</p>
         </div>

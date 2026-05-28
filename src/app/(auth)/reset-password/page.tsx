@@ -1,4 +1,5 @@
 export const runtime = "nodejs";
+
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { completePasswordReset, getResetSessionStatus } from "@/lib/user-management";
@@ -26,7 +27,7 @@ async function resetPasswordAction(formData: FormData) {
 }
 
 export default async function ResetPasswordPage({
-  searchParams,
+  searchParams
 }: {
   searchParams?: Promise<{ error?: string }>;
 }) {
@@ -35,43 +36,62 @@ export default async function ResetPasswordPage({
 
   return (
     <main className="login-page">
-      <div className="login-shell chrome-panel compact-auth-shell">
+      <div className="auth-stage">
+        <div className="auth-stage-bar">
+          <div className="auth-brand-lockup">
+            <span className="auth-brand-mark">O</span>
+            <div className="auth-brand-copy">
+              <strong>ORRY Serenity Kiss</strong>
+              <span>Secure password reset</span>
+            </div>
+          </div>
+          <span className="topbar-chip">Session-bound reset</span>
+        </div>
+        <div className="login-shell chrome-panel compact-auth-shell auth-shell">
         <section className="login-art">
           <div className="stack-list">
-            <span className="eyebrow">Recovery</span>
-            <h1>Set a new password securely.</h1>
-            <p>Recovery only completes when the Supabase recovery session is valid and the linked account is approved and active.</p>
+            <span className="eyebrow">การกู้คืนบัญชี</span>
+            <h1>ตั้งรหัสผ่านใหม่อย่างปลอดภัย</h1>
+            <p>การกู้คืนจะเสร็จสมบูรณ์เฉพาะเมื่อเซสชันรีเซ็ตยังใช้งานได้และบัญชีของคุณยังได้รับอนุมัติ</p>
+          </div>
+          <div className="auth-highlight-row single-column">
+            <article className="auth-highlight-card subtle-panel">
+              <span>Session status</span>
+              <strong>Approval and activity still enforced</strong>
+              <p>การตั้งรหัสผ่านใหม่จะสำเร็จได้เฉพาะกับเซสชันที่ยังใช้งานได้และบัญชีที่ยังผ่านเงื่อนไขเดิมของระบบ</p>
+            </article>
           </div>
         </section>
         <section className="login-form">
           <div>
-            <span className="eyebrow">Reset password</span>
-            <h2>Choose a new password</h2>
+            <span className="eyebrow">รีเซ็ตรหัสผ่าน</span>
+            <h2>กำหนดรหัสผ่านใหม่</h2>
             <p>{state.message}</p>
-            {search?.error === "policy" ? <p className="security-note danger-note">Password confirmation failed or the password does not meet policy.</p> : null}
-            {search?.error === "invalid" ? <p className="security-note danger-note">This reset link is invalid or can no longer be used.</p> : null}
+            {search?.error === "policy" ? <p className="security-note danger-note">รหัสผ่านและการยืนยันไม่ตรงกัน หรือไม่ผ่านนโยบายรหัสผ่าน</p> : null}
+            {search?.error === "invalid" ? <p className="security-note danger-note">ลิงก์รีเซ็ตนี้ไม่ถูกต้องหรือใช้งานไม่ได้แล้ว</p> : null}
           </div>
           {state.valid ? (
-            <form action={resetPasswordAction} className="stack-form">
+            <form action={resetPasswordAction} className="stack-form auth-form-panel">
               <label>
-                <span>New Password</span>
+                <span>รหัสผ่านใหม่</span>
                 <input className="input" name="password" type="password" required />
               </label>
               <label>
-                <span>Confirm Password</span>
+                <span>ยืนยันรหัสผ่าน</span>
                 <input className="input" name="confirmPassword" type="password" required />
               </label>
               <div className="auth-links-row">
-                <button className="button" type="submit">Save new password</button>
-                <Link href="/login" className="inline-link">Back to sign in</Link>
+                <button className="button" type="submit">บันทึกรหัสผ่านใหม่</button>
+                <Link href="/login" className="inline-link">กลับไปหน้าเข้าสู่ระบบ</Link>
               </div>
             </form>
           ) : (
             <div className="stack-form">
-              <Link href="/forgot-password" className="inline-link">Request a new reset link</Link>
+              <Link href="/forgot-password" className="inline-link">ขอลิงก์รีเซ็ตใหม่</Link>
             </div>
           )}
         </section>
+        </div>
       </div>
     </main>
   );

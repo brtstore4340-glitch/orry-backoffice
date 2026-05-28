@@ -4,7 +4,7 @@ export function PageHeader({
   title,
   description,
   actions,
-  eyebrow = "ORRY workspace"
+  eyebrow = "พื้นที่ทำงาน ORRY"
 }: {
   title: string;
   description: string;
@@ -13,7 +13,7 @@ export function PageHeader({
 }) {
   return (
     <header className="page-header chrome-panel">
-      <div className="page-header-copy">
+      <div className="page-header-copy page-header-lead">
         <div className="breadcrumb-row">
           <span className="eyebrow">{eyebrow}</span>
           <span className="breadcrumb-divider">/</span>
@@ -22,7 +22,10 @@ export function PageHeader({
         <h1>{title}</h1>
         <p>{description}</p>
       </div>
-      {actions ? <div className="page-header-actions">{actions}</div> : null}
+      <div className="page-header-side">
+        <div className="section-meta-chip">ORRY Workspace</div>
+        {actions ? <div className="page-header-actions">{actions}</div> : null}
+      </div>
     </header>
   );
 }

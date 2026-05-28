@@ -41,6 +41,16 @@ async function sendEmail(input: SendEmailInput) {
   if (!response.ok) {
     throw new EmailDeliveryError();
   }
+
+  const payload = await response.json().catch(() => ({}));
+  return {
+    providerMessageId:
+      typeof payload?.id === "string"
+        ? payload.id
+        : typeof payload?.data?.id === "string"
+          ? payload.data.id
+          : undefined
+  };
 }
 
 function wrapBody(title: string, intro: string, body: string) {
@@ -93,6 +103,25 @@ export async function sendPasswordResetEmail(input: {
       "Reset password",
       `A password reset was requested for ${input.fullName}.`,
       `<p>Use the secure link below to set a new password.</p><p style="margin:20px 0"><a href="${input.resetUrl}" style="display:inline-block;padding:12px 18px;border-radius:999px;background:#f1c9a2;color:#21140d;text-decoration:none;font-weight:700">Reset password</a></p><p style="word-break:break-all;color:#5f4363">${input.resetUrl}</p>`
+    )
+  });
+}
+
+export async function sendDocumentEmail(input: {
+  to: string;
+  subject: string;
+  documentNumber: string;
+  documentTitle: string;
+  bodyPreview?: string;
+}) {
+  return sendEmail({
+    to: input.to,
+    subject: input.subject,
+    text: `${input.documentTitle} ${input.documentNumber}\n\n${input.bodyPreview ?? "กรุณาตรวจสอบรายละเอียดเอกสารจากระบบ ORRY"}`,
+    html: wrapBody(
+      input.documentTitle,
+      `เอกสารเลขที่ ${input.documentNumber}`,
+      `<p>${input.bodyPreview ?? "กรุณาตรวจสอบรายละเอียดเอกสารจากระบบ ORRY"}</p>`
     )
   });
 }

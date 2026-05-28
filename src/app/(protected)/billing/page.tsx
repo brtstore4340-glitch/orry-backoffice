@@ -1,12 +1,5 @@
-export const dynamic = 'force-dynamic'
-import { PageHeader } from "@/components/app-shell/page-header";
-import { DocumentListPage } from "@/components/documents/document-list-page";
+import { redirect } from "next/navigation";
 
 export default function BillingPage() {
-  return (
-    <>
-      <PageHeader title="Billing" description="Tax-ready ORRY billing records with issue state, due dates, and collection visibility." />
-      <DocumentListPage title="Billing queue" description="Issued billing records awaiting settlement or follow-up." kind="BILLING_RECORD" />
-    </>
-  );
+  redirect("/documents/billing-notes");
 }

@@ -70,14 +70,39 @@ async function main() {
       legalName: "ORRY Commerce Co., Ltd.",
       legalNameEn: "ORRY Commerce Co., Ltd.",
       taxId: "0105558096348",
-      branchName: "Head Office",
-      branchCode: "00000",
       phone: "02-114-7788",
       mobile: "099-274-7799",
       email: "ops@orry.co",
       website: "https://orry.co",
       address: "88 Sukhumvit 55, Khlong Tan Nuea, Watthana, Bangkok",
       zipCode: "10110"
+    }
+  });
+
+  await prisma.companyBranch.create({
+    data: {
+      companyProfileId: company.id,
+      code: "MAIN",
+      name: "สำนักงานใหญ่",
+      taxBranchCode: "00000",
+      isHeadOffice: true,
+      phone: company.phone,
+      email: company.email,
+      address: company.address,
+      zipCode: company.zipCode,
+      active: true,
+    }
+  });
+
+  await prisma.companyTaxProfile.create({
+    data: {
+      companyProfileId: company.id,
+      taxId: company.taxId,
+      vatRegistered: true,
+      defaultVatPercent: 7,
+      withholdingPercent: 3,
+      branchCode: "00000",
+      active: true,
     }
   });
 

@@ -1,0 +1,178 @@
+You are Codex acting as a single-agent senior implementation engineer inside this repo.
+
+GOAL
+Revise the ORRY theme/UI to match the user's approved direction, keep business logic intact, self-audit the full result, deploy to Vercel only if every audit item passes, write and complete todo.md from start to finish, then trigger the orchestrator to run todo.md automatically.
+
+HARD RULES
+1) No reviewer agent.
+2) No separate QA agent.
+3) No separate audit agent.
+4) No approval handoff loop.
+5) You alone must do: discover -> implement -> self-audit -> fix -> self-audit -> deploy -> orchestrator handoff.
+6) Theme/UI only unless a minimal technical fix is strictly required to make the theme work.
+7) Do not redesign business logic, workflows, schemas, API contracts, or auth rules unless strictly required to preserve current functionality.
+8) Work evidence-first. Every claim must map to changed files and validation output.
+9) Do not stop after implementation. Continue until todo.md is complete or a hard blocker is proven.
+10) If blocked, record the exact blocker, exact file, exact error, and exact next action in todo.md.
+
+PRIMARY OBJECTIVES
+A. Revise the ORRY theme comprehensively and coherently.
+B. Self-audit the result against strict acceptance criteria.
+C. Deploy to Vercel only after every audit item is green.
+D. Create/update todo.md completely from # start to # end.
+E. Trigger the orchestrator to run todo.md automatically after completion.
+
+THEME TARGET
+Make ORRY feel:
+- premium but not flashy
+- modern and cohesive
+- cleaner in hierarchy and spacing
+- stronger in typography scale
+- consistent in surfaces, borders, radii, states, and shadows
+- better for Thai/English readability
+- more polished across dashboard, forms, tables, cards, modals, sidebar, and topbar
+- mobile-safe and production-ready
+- visually improved without breaking current logic
+
+STRICT SCOPE
+Allowed:
+- theme tokens
+- CSS variables
+- Tailwind theme extension
+- global styles
+- shell/layout styles
+- shared UI component styling
+- ORRY page styling
+- loading/empty/error visual polish
+- minimal technical fixes needed to keep UI functional
+
+Not allowed unless strictly necessary:
+- broad refactors
+- data model changes
+- auth logic changes
+- inventory or approval flow changes
+- API contract changes
+- unrelated code churn
+
+PHASE 0 — DISCOVER
+1) Inspect the repo structure for ORRY pages, components, theme files, Tailwind config, globals, layout shell, shared components, dashboard, forms, tables, dialogs, sidebar, and topbar.
+2) Inspect any design docs or styling guidance already present.
+3) Freeze a minimal file scope before editing.
+
+PHASE 1 — WRITE todo.md
+Create or replace todo.md at repo root.
+
+todo.md requirements:
+- must start with: # start
+- must end with: # end
+- must contain explicit checkbox tasks
+- must contain phases for discover, implement, self-audit, deploy, orchestrator handoff
+- must contain acceptance criteria
+- must contain rollback note
+- must contain evidence/log paths
+- must contain final completion section
+
+Required structure:
+# start
+## Objective
+## Scope Guardrails
+## File Targets
+## Implementation Tasks
+## Self-Audit Tasks
+## Deploy Tasks
+## Orchestrator Tasks
+## Evidence
+## Final Status
+# end
+
+PHASE 2 — IMPLEMENT THEME REVISION
+Revise the ORRY theme using the smallest coherent set of edits needed.
+Focus on:
+- tokens / variables
+- layout shell
+- sidebar / header / topbar
+- dashboard cards
+- forms / inputs / buttons
+- tables / filters / badges
+- dialogs / drawers
+- empty / loading / error states
+- responsive behavior
+
+Quality bar:
+- consistent spacing scale
+- consistent radii
+- consistent surfaces
+- consistent hover/focus/active states
+- good contrast
+- no random one-off styles
+- no broken layout
+- no avoidable compile errors
+
+PHASE 3 — SELF-AUDIT
+Run a strict self-audit after implementation.
+
+AUDIT CHECKLIST — ALL MUST PASS
+1) Build passes
+2) Dev startup passes
+3) No new TypeScript errors caused by theme work
+4) No new lint-breaking issues caused by theme work
+5) Key ORRY pages render
+6) Theme is coherent across major screens
+7) No business logic regression observed from touched screens
+8) Forms remain usable
+9) Tables remain usable
+10) Navigation remains usable
+11) Loading/empty/error states render safely
+12) Mobile layout does not obviously break
+13) No severe contrast/readability issues
+14) No dead imports or abandoned theme code
+15) No placeholder styling left unfinished
+
+PHASE 4 — SELF-REPAIR LOOP
+If any audit item fails:
+- do not deploy
+- fix the failure
+- update todo.md with the exact failed item and exact repair action
+- rerun self-audit
+Repeat until all items pass or a hard blocker is proven.
+
+PHASE 5 — DEPLOY VERCEL
+Only after every audit item passes:
+1) run the correct Vercel deploy flow for this repo
+2) capture deploy output
+3) record deployment URL
+4) update todo.md Final Status = COMPLETE
+5) save audit summary and deploy evidence
+
+PHASE 6 — ORCHESTRATOR HANDOFF
+After todo.md is complete:
+1) locate the current orchestrator entry point / automation runner in this repo
+2) choose the repo-aligned orchestrator path
+3) instruct or trigger the orchestrator to run todo.md automatically
+4) capture the exact command used and result
+5) write orchestrator evidence into todo.md and logs
+
+MANDATORY OUTPUTS
+You must produce:
+- updated ORRY theme/UI files
+- completed todo.md from # start to # end
+- self-audit evidence
+- deploy evidence if passed
+- orchestrator run evidence
+- a concise final summary with:
+  - changed files
+  - audit status
+  - deploy result
+  - orchestrator result
+  - remaining risks if any
+
+FINAL SUCCESS CONDITION
+Success means all of the following are true:
+1) ORRY theme revised coherently
+2) self-audit checklist fully green
+3) Vercel deploy succeeded
+4) todo.md fully completed
+5) orchestrator was instructed or triggered to run todo.md automatically
+6) evidence exists for every claim
+
+If ambiguity exists, choose the safest minimal path that still completes the mission. Do not stop early.

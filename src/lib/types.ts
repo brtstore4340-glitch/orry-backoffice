@@ -1,6 +1,39 @@
 export type RoleCode = "ADMIN" | "SALES" | "FINANCE" | "OPERATIONS" | "EXECUTIVE";
 export type DocumentKind = "PROPOSAL" | "SALES_ORDER" | "BILLING_RECORD" | "RECEIPT" | "PURCHASE_ORDER" | "EXPENSE";
-export type DocumentStatus = "DRAFT" | "AWAITING_APPROVAL" | "APPROVED" | "ISSUED" | "FULFILLED" | "PAID" | "CANCELLED";
+export type DocumentStatus =
+  | "DRAFT"
+  | "AWAITING_APPROVAL"
+  | "APPROVED"
+  | "REJECTED"
+  | "ISSUED"
+  | "SENT"
+  | "ACCEPTED"
+  | "PARTIALLY_PAID"
+  | "PAID"
+  | "OVERDUE"
+  | "PARTIALLY_RECEIVED"
+  | "RECEIVED"
+  | "FULFILLED"
+  | "CANCELLED"
+  | "ARCHIVED";
+export type DocumentModuleKey =
+  | "quotation"
+  | "billing_note"
+  | "cash_invoice"
+  | "tax_invoice"
+  | "receipt"
+  | "expense"
+  | "purchase_order"
+  | "inventory_receiving"
+  | "withholding_tax";
+export type PersistedDocumentModuleKey =
+  | "quotation"
+  | "billing_note"
+  | "cash_invoice"
+  | "tax_invoice"
+  | "receipt"
+  | "expense"
+  | "purchase_order";
 export type PaymentMethod = "CASH" | "TRANSFER" | "CREDIT_CARD" | "CHEQUE";
 export type ContactType = "CUSTOMER" | "COMPANY" | "VENDOR" | "PARTNER";
 export type ProductKind = "INVENTORY" | "SERVICE" | "NON_INVENTORY";
@@ -24,6 +57,12 @@ export interface ActivityItem {
   detail: string;
   createdAt: string;
   actor?: string;
+}
+
+export interface DocumentTimelineItem extends ActivityItem {
+  category?: "status" | "email" | "share" | "payment" | "attachment" | "audit";
+  fromStatus?: DocumentStatus | string;
+  toStatus?: DocumentStatus | string;
 }
 
 export interface ContactSummary {
@@ -53,6 +92,7 @@ export interface DocumentListItem {
   id: string;
   documentNumber: string;
   kind: DocumentKind;
+  moduleKey?: PersistedDocumentModuleKey;
   status: DocumentStatus;
   accountName: string;
   issuedAt: string;
@@ -60,6 +100,7 @@ export interface DocumentListItem {
   totalAmount: number;
   projectName?: string;
   referenceCode?: string;
+  branchName?: string;
 }
 
 export interface DocumentLineItem {
@@ -94,26 +135,110 @@ export interface DocumentDetail extends DocumentListItem {
   lines: DocumentLineItem[];
   payments: PaymentItem[];
   activities: ActivityItem[];
+  attachments?: Array<{
+    id: string;
+    fileName: string;
+    storagePath: string;
+    mimeType?: string;
+    fileSize?: number;
+  }>;
+  statusHistory?: Array<{
+    id: string;
+    fromStatus?: DocumentStatus | string;
+    toStatus: DocumentStatus | string;
+    changedBy?: { name?: string };
+    createdAt: Date;
+  }>;
+  emailLogs?: Array<{
+    id: string;
+    sentTo: string;
+    status: string;
+    createdAt: Date;
+  }>;
+  shareLogs?: Array<{
+    id: string;
+    channel: string;
+    sharedTo?: string;
+    sharedBy?: { name?: string };
+    sharedAt: Date;
+  }>;
   references: Array<{ label: string; documentNumber: string; documentId: string }>;
 }
 
+export interface AccountingDocumentAction {
+  key: "create" | "edit" | "saveDraft" | "submit" | "approve" | "reject" | "send" | "share" | "email" | "cancel" | "duplicate" | "print" | "recordPayment" | "recordReceipt" | "addAttachment";
+  label: string;
+}
+
 export interface CompanyProfileView {
+  id: string;
   displayName: string;
   legalName: string;
   taxId?: string;
-  branchName?: string;
-  branchCode?: string;
   phone?: string;
   email?: string;
   website?: string;
   address?: string;
+  defaultBranchId?: string;
+  defaultBranchName?: string;
+  defaultBranchCode?: string;
   bankAccounts: Array<{
+    id: string;
     bankName: string;
     accountName: string;
     accountNumber: string;
     branch?: string;
     isPrimary: boolean;
   }>;
+  branches: CompanyBranchSummary[];
+}
+
+export interface CompanyTaxProfileView {
+  taxId?: string;
+  vatRegistered: boolean;
+  branchId?: string;
+  branchName?: string;
+  branchCode?: string;
+  withholdingEnabled: boolean;
+  taxOffice?: string;
+  revenueCode?: string;
+}
+
+export interface CompanyBranchSummary {
+  id: string;
+  branchCode: string;
+  branchName: string;
+  isHeadOffice: boolean;
+  active: boolean;
+}
+
+export interface ContactDetail extends ContactSummary {
+  legalName?: string;
+  mobile?: string;
+  address?: string;
+  zipCode?: string;
+  notes?: string;
+}
+
+export interface ProductDetail extends ProductSummary {
+  description?: string;
+  cost: number;
+  active: boolean;
+}
+
+export interface BankAccountSummary {
+  id: string;
+  bankName: string;
+  accountName: string;
+  accountNumber: string;
+  branch?: string;
+  swiftCode?: string;
+  isPrimary: boolean;
+}
+
+export interface BankAccountDetail extends BankAccountSummary {
+  companyDisplayName?: string;
+  active: boolean;
 }
 
 export interface DashboardSnapshot {

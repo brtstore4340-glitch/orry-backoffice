@@ -46,10 +46,18 @@ enum DocumentStatus {
   DRAFT
   AWAITING_APPROVAL
   APPROVED
+  REJECTED
+  SENT
+  ACCEPTED
   ISSUED
+  PARTIALLY_PAID
+  OVERDUE
+  PARTIALLY_RECEIVED
+  RECEIVED
   FULFILLED
   PAID
   CANCELLED
+  ARCHIVED
 }
 
 enum PaymentMethod {
@@ -69,11 +77,24 @@ enum DocumentReferenceType {
   RELATED_TO
 }
 
+enum DocumentModuleCode {
+  QUOTATION
+  BILLING_NOTE
+  CASH_INVOICE
+  TAX_INVOICE
+  RECEIPT
+  EXPENSE
+  PURCHASE_ORDER
+  SALES_ORDER
+}
+
 model Role {
   id    String   @id @default(cuid())
   code  RoleCode @unique
   name  String
   users User[]
+
+  @@map("roles")
 }
 
 model User {
@@ -96,9 +117,15 @@ model User {
   updatedAt      DateTime           @updatedAt
   documents      BusinessDocument[] @relation("DocumentOwner")
   payments       PaymentEntry[]     @relation("PaymentActor")
+  paymentsPaid   PaymentPaid[]      @relation("PaymentPaidActor")
   activities     DocumentActivity[] @relation("ActivityActor")
+  uploadedAttachments DocumentAttachment[] @relation("AttachmentUploadedBy")
   securityEvents SecurityEvent[]    @relation("SecurityEventActor")
+  statusChanges  DocumentStatusHistory[] @relation("DocumentStatusChangedBy")
+  sharedDocuments DocumentShareLog[] @relation("DocumentSharedBy")
   passwordResets PasswordResetToken[]
+
+  @@map("user_accounts")
 }
 
 model PasswordResetToken {
@@ -109,6 +136,8 @@ model PasswordResetToken {
   expiresAt  DateTime
   consumedAt DateTime?
   createdAt  DateTime @default(now())
+
+  @@map("password_reset_logs")
 }
 
 model CompanyProfile {
@@ -117,8 +146,6 @@ model CompanyProfile {
   legalName       String
   legalNameEn     String?
   taxId           String?
-  branchName      String?
-  branchCode      String?
   vatRegistered   Boolean      @default(true)
   defaultCurrency String       @default("THB")
   phone           String?
@@ -132,12 +159,19 @@ model CompanyProfile {
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
   bankAccounts    BankAccount[]
+  documents       BusinessDocument[]
+  branches        CompanyBranch[]
+  taxProfiles     CompanyTaxProfile[]
+
+  @@map("company_profiles")
 }
 
 model BankAccount {
   id               String         @id @default(cuid())
   companyProfileId String
   companyProfile   CompanyProfile @relation(fields: [companyProfileId], references: [id], onDelete: Cascade)
+  paymentChannelId String?
+  paymentChannel   PaymentChannel? @relation(fields: [paymentChannelId], references: [id], onDelete: SetNull)
   bankName         String
   accountName      String
   accountNumber    String
@@ -145,6 +179,11 @@ model BankAccount {
   swiftCode        String?
   isPrimary        Boolean        @default(false)
   createdAt        DateTime       @default(now())
+  paymentEntries   PaymentEntry[]
+  paymentsPaid     PaymentPaid[]
+  bankAccountMappings BankAccountMapping[]
+
+  @@map("bank_accounts")
 }
 
 model Contact {
@@ -165,6 +204,11 @@ model Contact {
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
   documents     BusinessDocument[]
+  addresses     ContactAddress[]
+  taxInfo       ContactTaxInfo?
+  withholdingTaxDocuments WithholdingTaxDocument[]
+
+  @@map("contacts")
 }
 
 model Warehouse {
@@ -175,6 +219,11 @@ model Warehouse {
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
   balances  InventoryBalance[]
+  documents BusinessDocument[]
+  inventoryReceipts InventoryReceipt[]
+  inventoryMovements InventoryMovement[]
+
+  @@map("warehouses")
 }
 
 model Product {
@@ -182,6 +231,10 @@ model Product {
   sku          String             @unique
   name         String
   kind         ProductKind
+  categoryId   String?
+  category     ProductCategory?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  unitId       String?
+  unit         ProductUnit?       @relation(fields: [unitId], references: [id], onDelete: SetNull)
   description  String?
   barcode      String?            @unique
   unitLabel    String             @default("unit")
@@ -194,6 +247,10 @@ model Product {
   updatedAt    DateTime           @updatedAt
   balances     InventoryBalance[]
   lines        DocumentLine[]
+  inventoryReceiptLines InventoryReceiptLine[]
+  inventoryMovements InventoryMovement[]
+
+  @@map("products")
 }
 
 model InventoryBalance {
@@ -206,6 +263,7 @@ model InventoryBalance {
   updatedAt   DateTime  @updatedAt
 
   @@unique([warehouseId, productId])
+  @@map("inventory_balances")
 }
 
 model DocumentCounter {
@@ -214,104 +272,140 @@ model DocumentCounter {
   prefix     String
   lastNumber Int          @default(0)
   updatedAt  DateTime     @updatedAt
+
+  @@map("document_counters")
 }
 
 model BusinessDocument {
   id                       String              @id @default(cuid())
-  documentNumber           String              @unique
-  kind                     DocumentKind
-  status                   DocumentStatus      @default(DRAFT)
-  contactId                String?
+  documentNumber           String              @unique @map("document_number")
+  kind                     DocumentKind         @map("document_type")
+  moduleCode               DocumentModuleCode?  @map("module_code")
+  status                   DocumentStatus      @default(DRAFT) @map("document_status")
+  contactId                String?             @map("contact_id")
   contact                  Contact?            @relation(fields: [contactId], references: [id], onDelete: SetNull)
-  ownerId                  String?
+  ownerId                  String?             @map("owner_id")
   owner                    User?               @relation("DocumentOwner", fields: [ownerId], references: [id], onDelete: SetNull)
-  issuedAt                 DateTime
-  dueAt                    DateTime?
-  creditDays               Int                 @default(0)
-  paymentTermLabel         String?
-  salesOwnerName           String?
-  projectName              String?
-  referenceCode            String?
+  companyProfileId         String?             @map("company_profile_id")
+  companyProfile           CompanyProfile?     @relation(fields: [companyProfileId], references: [id], onDelete: SetNull)
+  branchId                 String?             @map("branch_id")
+  branch                   CompanyBranch?      @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  warehouseId              String?             @map("warehouse_id")
+  warehouse                Warehouse?          @relation(fields: [warehouseId], references: [id], onDelete: SetNull)
+  issuedAt                 DateTime            @map("issued_at")
+  dueAt                    DateTime?           @map("due_at")
+  creditDays               Int                 @default(0) @map("credit_days")
+  paymentTermLabel         String?             @map("payment_term_label")
+  salesOwnerName           String?             @map("sales_owner_name")
+  projectName              String?             @map("project_name")
+  referenceCode            String?             @map("reference_code")
   notes                    String?
-  internalNotes            String?
-  taxInclusive             Boolean             @default(false)
-  discountPercent          Decimal             @default(0) @db.Decimal(5, 2)
-  discountAmount           Decimal             @default(0) @db.Decimal(12, 2)
-  subtotalAmount           Decimal             @default(0) @db.Decimal(12, 2)
-  totalAfterDiscountAmount Decimal             @default(0) @db.Decimal(12, 2)
-  vatEnabled               Boolean             @default(true)
-  vatAmount                Decimal             @default(0) @db.Decimal(12, 2)
-  withholdingEnabled       Boolean             @default(false)
-  withholdingPercent       Decimal             @default(0) @db.Decimal(5, 2)
-  withholdingAmount        Decimal             @default(0) @db.Decimal(12, 2)
-  deductionLabel           String?
-  deductionAmount          Decimal             @default(0) @db.Decimal(12, 2)
-  totalAmount              Decimal             @default(0) @db.Decimal(12, 2)
-  shareToken               String?             @unique
-  sharedAt                 DateTime?
-  createdAt                DateTime            @default(now())
-  updatedAt                DateTime            @updatedAt
+  internalNotes            String?             @map("internal_notes")
+  taxInclusive             Boolean             @default(false) @map("tax_inclusive")
+  discountPercent          Decimal             @default(0) @db.Decimal(5, 2) @map("discount_percent")
+  discountAmount           Decimal             @default(0) @db.Decimal(12, 2) @map("discount_amount")
+  subtotalAmount           Decimal             @default(0) @db.Decimal(12, 2) @map("subtotal_amount")
+  totalAfterDiscountAmount Decimal             @default(0) @db.Decimal(12, 2) @map("total_after_discount_amount")
+  vatEnabled               Boolean             @default(true) @map("vat_enabled")
+  vatAmount                Decimal             @default(0) @db.Decimal(12, 2) @map("vat_amount")
+  withholdingEnabled       Boolean             @default(false) @map("withholding_enabled")
+  withholdingPercent       Decimal             @default(0) @db.Decimal(5, 2) @map("withholding_percent")
+  withholdingAmount        Decimal             @default(0) @db.Decimal(12, 2) @map("withholding_amount")
+  deductionLabel           String?             @map("deduction_label")
+  deductionAmount          Decimal             @default(0) @db.Decimal(12, 2) @map("deduction_amount")
+  totalAmount              Decimal             @default(0) @db.Decimal(12, 2) @map("total_amount")
+  shareToken               String?             @unique @map("share_token")
+  sharedAt                 DateTime?           @map("shared_at")
+  createdAt                DateTime            @default(now()) @map("created_at")
+  updatedAt                DateTime            @updatedAt @map("updated_at")
   lines                    DocumentLine[]
   payments                 PaymentEntry[]
+  paymentsPaid             PaymentPaid[]
   attachments              DocumentAttachment[]
   outgoingReferences       DocumentReference[] @relation("ReferenceSource")
   incomingReferences       DocumentReference[] @relation("ReferenceTarget")
   activities               DocumentActivity[]
+  statusHistory            DocumentStatusHistory[]
+  emailLogs                DocumentEmailLog[]
+  shareLogs                DocumentShareLog[]
+  inventoryReceipts        InventoryReceipt[]
+  billingNoteLinks         BillingNoteLink[]
+  billingNoteSourceLinks   BillingNoteLink[]   @relation("BillingNoteLinkSource")
+  taxInvoiceLinks          TaxInvoiceLink[]
+  taxInvoiceSourceLinks    TaxInvoiceLink[]    @relation("TaxInvoiceLinkSource")
+  receiptLinks             ReceiptLink[]
+  receiptSourceLinks       ReceiptLink[]       @relation("ReceiptLinkSource")
+  purchaseOrderLinks       PurchaseOrderLink[]
+  purchaseOrderSourceLinks PurchaseOrderLink[] @relation("PurchaseOrderLinkSource")
+
+  @@map("documents")
 }
 
 model DocumentLine {
   id              String           @id @default(cuid())
-  documentId      String
+  documentId      String           @map("document_id")
   document        BusinessDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  productId       String?
+  productId       String?          @map("product_id")
   product         Product?         @relation(fields: [productId], references: [id], onDelete: SetNull)
   title           String
   description     String?
-  unitLabel       String           @default("unit")
+  unitLabel       String           @default("unit") @map("unit_label")
   quantity        Decimal          @db.Decimal(12, 2)
-  unitPrice       Decimal          @db.Decimal(12, 2)
-  discountPercent Decimal          @default(0) @db.Decimal(5, 2)
-  taxPercent      Decimal          @default(7) @db.Decimal(5, 2)
-  lineTotal       Decimal          @db.Decimal(12, 2)
-  sortOrder       Int              @default(0)
+  unitPrice       Decimal          @db.Decimal(12, 2) @map("unit_price")
+  discountPercent Decimal          @default(0) @db.Decimal(5, 2) @map("discount_percent")
+  taxPercent      Decimal          @default(7) @db.Decimal(5, 2) @map("tax_percent")
+  lineTotal       Decimal          @db.Decimal(12, 2) @map("line_total")
+  sortOrder       Int              @default(0) @map("sort_order")
+
+  @@map("document_lines")
 }
 
 model PaymentEntry {
   id              String           @id @default(cuid())
-  documentId      String
+  documentId      String           @map("document_id")
   document        BusinessDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  actorId         String?
+  actorId         String?          @map("recorded_by")
   actor           User?            @relation("PaymentActor", fields: [actorId], references: [id], onDelete: SetNull)
   direction       PaymentDirection
   method          PaymentMethod
   amount          Decimal          @db.Decimal(12, 2)
-  paidAt          DateTime
-  referenceNumber String?
-  note            String?
-  createdAt       DateTime         @default(now())
+  paidAt          DateTime         @map("received_at")
+  referenceNumber String?          @map("reference_number")
+  note            String?          @map("notes")
+  bankAccountId   String?          @map("bank_account_id")
+  bankAccount     BankAccount?     @relation(fields: [bankAccountId], references: [id], onDelete: SetNull)
+  createdAt       DateTime         @default(now()) @map("created_at")
+
+  @@map("payments_received")
 }
 
 model DocumentAttachment {
   id          String           @id @default(cuid())
-  documentId  String
+  documentId  String           @map("document_id")
   document    BusinessDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  fileName    String
-  storagePath String
-  mimeType    String?
-  fileSize    Int?
-  createdAt   DateTime         @default(now())
+  fileName    String           @map("file_name")
+  storageBucket String?        @map("storage_bucket")
+  storagePath String           @map("file_path")
+  mimeType    String?          @map("mime_type")
+  fileSize    Int?             @map("file_size")
+  uploadedById String?         @map("uploaded_by")
+  uploadedBy   User?           @relation("AttachmentUploadedBy", fields: [uploadedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime         @default(now()) @map("created_at")
+
+  @@map("document_attachments")
 }
 
 model DocumentReference {
   id               String                @id @default(cuid())
-  sourceDocumentId String
+  sourceDocumentId String               @map("source_document_id")
   sourceDocument   BusinessDocument      @relation("ReferenceSource", fields: [sourceDocumentId], references: [id], onDelete: Cascade)
-  targetDocumentId String
+  targetDocumentId String               @map("target_document_id")
   targetDocument   BusinessDocument      @relation("ReferenceTarget", fields: [targetDocumentId], references: [id], onDelete: Cascade)
-  type             DocumentReferenceType
-  createdAt        DateTime              @default(now())
+  type             DocumentReferenceType @map("reference_type")
+  createdAt        DateTime              @default(now()) @map("created_at")
 
   @@unique([sourceDocumentId, targetDocumentId, type])
+  @@map("document_references")
 }
 
 model SecurityEvent {
@@ -327,15 +421,358 @@ model SecurityEvent {
   userAgent    String?
   metadataJson String?
   createdAt    DateTime @default(now())
+
+  @@map("security_events")
 }
 
 model DocumentActivity {
   id         String           @id @default(cuid())
-  documentId String
+  documentId String          @map("document_id")
   document   BusinessDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  actorId    String?
+  actorId    String?         @map("actor_id")
   actor      User?            @relation("ActivityActor", fields: [actorId], references: [id], onDelete: SetNull)
   action     String
   detail     String?
-  createdAt  DateTime         @default(now())
+  eventType  String?         @map("event_type")
+  metadataJson String?       @map("metadata_json")
+  createdAt  DateTime         @default(now()) @map("created_at")
+
+  @@map("document_events")
+}
+
+model CompanyBranch {
+  id              String         @id @default(cuid())
+  companyProfileId String         @map("company_profile_id")
+  companyProfile  CompanyProfile @relation(fields: [companyProfileId], references: [id], onDelete: Cascade)
+  code            String
+  name            String
+  taxBranchCode   String?        @map("tax_branch_code")
+  isHeadOffice    Boolean        @default(false) @map("is_head_office")
+  phone           String?
+  email           String?
+  address         String?
+  zipCode         String?        @map("zip_code")
+  active          Boolean        @default(true)
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  documents       BusinessDocument[]
+  taxProfiles     CompanyTaxProfile[]
+
+  @@unique([companyProfileId, code])
+  @@map("company_branches")
+}
+
+model CompanyTaxProfile {
+  id                  String         @id @default(cuid())
+  companyProfileId    String         @map("company_profile_id")
+  companyProfile      CompanyProfile @relation(fields: [companyProfileId], references: [id], onDelete: Cascade)
+  branchId            String?        @map("branch_id")
+  branch              CompanyBranch? @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  taxId              String?        @map("tax_id")
+  vatRegistered      Boolean        @default(true) @map("vat_registered")
+  defaultVatPercent  Decimal        @default(7) @db.Decimal(5, 2) @map("default_vat_percent")
+  withholdingPercent Decimal        @default(3) @db.Decimal(5, 2) @map("withholding_percent")
+  branchCode         String?        @map("branch_code")
+  active             Boolean        @default(true)
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+
+  @@map("company_tax_profiles")
+}
+
+model ContactAddress {
+  id         String   @id @default(cuid())
+  contactId  String   @map("contact_id")
+  contact    Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  label      String?
+  line1      String   @map("line1")
+  line2      String?  @map("line2")
+  district   String?
+  province   String?
+  zipCode    String?  @map("zip_code")
+  country    String?  @default("TH")
+  isDefault  Boolean  @default(false) @map("is_default")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("contact_addresses")
+}
+
+model ContactTaxInfo {
+  id               String   @id @default(cuid())
+  contactId        String   @unique @map("contact_id")
+  contact          Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  taxId            String?  @map("tax_id")
+  branchCode       String?  @map("branch_code")
+  branchName       String?  @map("branch_name")
+  vatRegistered    Boolean  @default(false) @map("vat_registered")
+  withholdingRate  Decimal  @default(3) @db.Decimal(5, 2) @map("withholding_rate")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("contact_tax_info")
+}
+
+model ProductCategory {
+  id        String    @id @default(cuid())
+  code      String    @unique
+  name      String
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  products  Product[]
+
+  @@map("product_categories")
+}
+
+model ProductUnit {
+  id        String    @id @default(cuid())
+  code      String    @unique
+  name      String
+  symbol    String?
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  products  Product[]
+
+  @@map("product_units")
+}
+
+model PriceBook {
+  id        String    @id @default(cuid())
+  code      String    @unique
+  name      String
+  currency  String    @default("THB")
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("price_books")
+}
+
+model PaymentChannel {
+  id           String        @id @default(cuid())
+  code         String        @unique
+  name         String
+  type         String
+  active       Boolean       @default(true)
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  bankAccounts BankAccount[]
+  bankAccountMappings BankAccountMapping[]
+
+  @@map("payment_channels")
+}
+
+model BankAccountMapping {
+  id               String         @id @default(cuid())
+  bankAccountId    String         @map("bank_account_id")
+  bankAccount      BankAccount    @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  paymentChannelId String?        @map("payment_channel_id")
+  paymentChannel   PaymentChannel? @relation(fields: [paymentChannelId], references: [id], onDelete: SetNull)
+  active           Boolean        @default(true)
+  createdAt        DateTime       @default(now()) @map("created_at")
+
+  @@map("bank_account_mappings")
+}
+
+model AccountingLockPeriod {
+  id          String    @id @default(cuid())
+  periodName  String    @map("period_name")
+  startsAt    DateTime  @map("starts_at")
+  endsAt      DateTime? @map("ends_at")
+  locked      Boolean   @default(true)
+  reason      String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("accounting_lock_periods")
+}
+
+model DocumentStatusHistory {
+  id           String           @id @default(cuid())
+  documentId   String           @map("document_id")
+  document     BusinessDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  fromStatus   DocumentStatus?  @map("from_status")
+  toStatus     DocumentStatus   @map("to_status")
+  changedById  String?          @map("changed_by")
+  changedBy    User?            @relation("DocumentStatusChangedBy", fields: [changedById], references: [id], onDelete: SetNull)
+  note         String?
+  createdAt    DateTime         @default(now()) @map("created_at")
+
+  @@map("document_status_history")
+}
+
+model DocumentEmailLog {
+  id                String           @id @default(cuid())
+  documentId        String           @map("document_id")
+  document          BusinessDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  sentTo            String           @map("recipient_email")
+  subject           String?
+  bodyPreview       String?          @map("body")
+  providerMessageId String?          @map("provider_message_id")
+  status            String
+  sentAt            DateTime?        @map("sent_at")
+  openedAt          DateTime?        @map("opened_at")
+  failedAt          DateTime?        @map("failed_at")
+  errorMessage      String?          @map("error_message")
+  createdAt         DateTime         @default(now()) @map("created_at")
+
+  @@map("document_email_logs")
+}
+
+model DocumentShareLog {
+  id          String           @id @default(cuid())
+  documentId  String           @map("document_id")
+  document    BusinessDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  sharedById  String?          @map("shared_by")
+  sharedBy    User?            @relation("DocumentSharedBy", fields: [sharedById], references: [id], onDelete: SetNull)
+  shareToken  String?          @map("share_token")
+  channel     String           @map("share_type")
+  sharedTo    String?          @map("share_target")
+  message     String?
+  sharedAt    DateTime         @default(now()) @map("shared_at")
+  clickedAt   DateTime?        @map("clicked_at")
+
+  @@map("document_share_logs")
+}
+
+model PaymentPaid {
+  id              String           @id @default(cuid())
+  documentId      String           @map("document_id")
+  document        BusinessDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  actorId         String?          @map("recorded_by")
+  actor           User?            @relation("PaymentPaidActor", fields: [actorId], references: [id], onDelete: SetNull)
+  method          PaymentMethod
+  amount          Decimal          @db.Decimal(12, 2)
+  paidAt          DateTime         @map("paid_at")
+  referenceNumber String?          @map("reference_number")
+  note            String?          @map("notes")
+  bankAccountId   String?          @map("bank_account_id")
+  bankAccount     BankAccount?     @relation(fields: [bankAccountId], references: [id], onDelete: SetNull)
+  createdAt       DateTime         @default(now()) @map("created_at")
+
+  @@map("payments_paid")
+}
+
+model InventoryReceipt {
+  id              String            @id @default(cuid())
+  documentId      String?           @map("document_id")
+  document        BusinessDocument? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  purchaseOrderId String?           @map("purchase_order_id")
+  warehouseId     String            @map("warehouse_id")
+  warehouse       Warehouse         @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  receiptNumber   String            @unique @map("receipt_number")
+  status          DocumentStatus    @default(DRAFT)
+  receivedAt      DateTime?         @map("receipt_date")
+  notes           String?
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  lines           InventoryReceiptLine[]
+
+  @@map("inventory_receipts")
+}
+
+model InventoryReceiptLine {
+  id                 String           @id @default(cuid())
+  inventoryReceiptId String           @map("inventory_receipt_id")
+  inventoryReceipt   InventoryReceipt @relation(fields: [inventoryReceiptId], references: [id], onDelete: Cascade)
+  productId          String           @map("product_id")
+  product            Product          @relation(fields: [productId], references: [id], onDelete: Restrict)
+  quantity           Decimal          @db.Decimal(12, 2) @map("quantity_received")
+  unitCost           Decimal          @db.Decimal(12, 2) @map("unit_cost")
+  createdAt          DateTime         @default(now()) @map("created_at")
+
+  @@map("inventory_receipt_lines")
+}
+
+model InventoryMovement {
+  id            String    @id @default(cuid())
+  warehouseId   String    @map("warehouse_id")
+  warehouse     Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  productId     String    @map("product_id")
+  product       Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  movementType  String    @map("movement_type")
+  quantity      Decimal   @db.Decimal(12, 2)
+  referenceType String?   @map("reference_type")
+  referenceId   String?   @map("reference_id")
+  occurredAt    DateTime  @map("occurred_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  @@map("inventory_movements")
+}
+
+model BillingNoteLink {
+  id               String           @id @default(cuid())
+  documentId       String           @map("document_id")
+  document         BusinessDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  sourceDocumentId String?          @map("source_document_id")
+  sourceDocument   BusinessDocument? @relation("BillingNoteLinkSource", fields: [sourceDocumentId], references: [id], onDelete: SetNull)
+  createdAt        DateTime         @default(now()) @map("created_at")
+
+  @@map("billing_note_links")
+}
+
+model TaxInvoiceLink {
+  id               String           @id @default(cuid())
+  documentId       String           @map("document_id")
+  document         BusinessDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  sourceDocumentId String?          @map("source_document_id")
+  sourceDocument   BusinessDocument? @relation("TaxInvoiceLinkSource", fields: [sourceDocumentId], references: [id], onDelete: SetNull)
+  createdAt        DateTime         @default(now()) @map("created_at")
+
+  @@map("tax_invoice_links")
+}
+
+model ReceiptLink {
+  id               String           @id @default(cuid())
+  documentId       String           @map("document_id")
+  document         BusinessDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  sourceDocumentId String?          @map("source_document_id")
+  sourceDocument   BusinessDocument? @relation("ReceiptLinkSource", fields: [sourceDocumentId], references: [id], onDelete: SetNull)
+  createdAt        DateTime         @default(now()) @map("created_at")
+
+  @@map("receipt_links")
+}
+
+model PurchaseOrderLink {
+  id               String           @id @default(cuid())
+  documentId       String           @map("document_id")
+  document         BusinessDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  sourceDocumentId String?          @map("source_document_id")
+  sourceDocument   BusinessDocument? @relation("PurchaseOrderLinkSource", fields: [sourceDocumentId], references: [id], onDelete: SetNull)
+  createdAt        DateTime         @default(now()) @map("created_at")
+
+  @@map("purchase_order_links")
+}
+
+model WithholdingTaxDocument {
+  id                String           @id @default(cuid())
+  documentNumber    String           @unique @map("document_number")
+  status            DocumentStatus   @default(DRAFT)
+  contactId         String?          @map("supplier_id")
+  contact           Contact?         @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  issuedAt          DateTime         @map("document_date")
+  totalAmount       Decimal          @db.Decimal(12, 2) @map("tax_base_amount")
+  withholdingRate   Decimal          @db.Decimal(5, 2) @map("withholding_rate")
+  withholdingAmount Decimal          @db.Decimal(12, 2) @map("withheld_amount")
+  notes             String?
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+  lines             WithholdingTaxLine[]
+
+  @@map("withholding_tax_documents")
+}
+
+model WithholdingTaxLine {
+  id                    String                @id @default(cuid())
+  withholdingTaxDocumentId String            @map("withholding_tax_document_id")
+  withholdingTaxDocument WithholdingTaxDocument @relation(fields: [withholdingTaxDocumentId], references: [id], onDelete: Cascade)
+  description           String
+  amount                Decimal               @db.Decimal(12, 2)
+  rate                  Decimal               @db.Decimal(5, 2)
+  taxAmount             Decimal               @db.Decimal(12, 2) @map("tax_amount")
+  createdAt             DateTime              @default(now()) @map("created_at")
+
+  @@map("withholding_tax_lines")
 }

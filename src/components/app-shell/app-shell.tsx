@@ -2,18 +2,7 @@ import { ReactNode } from "react";
 import Link from "next/link";
 import { auth, signOut } from "@/auth";
 import { NavLink } from "@/components/app-shell/nav-link";
-
-const baseNavItems = [
-  { href: "/dashboard", label: "Command" },
-  { href: "/contacts", label: "Accounts" },
-  { href: "/catalog", label: "Catalog" },
-  { href: "/proposals", label: "Proposals" },
-  { href: "/orders", label: "Orders" },
-  { href: "/billing", label: "Billing" },
-  { href: "/receipts", label: "Receipts" },
-  { href: "/payments", label: "Payments" },
-  { href: "/settings", label: "Settings" }
-];
+import { thaiNavItems, thaiRoleLabels } from "@/lib/orry-labels";
 
 async function signOutAction() {
   "use server";
@@ -22,14 +11,21 @@ async function signOutAction() {
 
 export async function AppShell({ children }: { children: ReactNode }) {
   const session = await auth();
-  const now = new Intl.DateTimeFormat("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric"
-  }).format(new Date());
-  const navItems = session?.user?.role === "ADMIN"
-    ? [...baseNavItems, { href: "/users", label: "Users" }]
-    : baseNavItems;
+  const now = new Intl.DateTimeFormat("th-TH", { dateStyle: "long" }).format(new Date());
+  const role = session?.user?.role;
+  const canAccessAdmin = role === "ADMIN";
+  const canAccessSensitiveSettings = role === "ADMIN" || role === "EXECUTIVE" || role === "FINANCE";
+  const navItems = thaiNavItems.filter((item) => {
+    if (item.href.startsWith("/admin")) {
+      return canAccessAdmin;
+    }
+
+    if (item.href.startsWith("/settings/company") || item.href.startsWith("/settings/bank-accounts")) {
+      return canAccessSensitiveSettings;
+    }
+
+    return true;
+  });
 
   return (
     <div className="shell-frame">
@@ -38,8 +34,8 @@ export async function AppShell({ children }: { children: ReactNode }) {
         <aside className="sidebar chrome-panel">
           <div className="brand-block">
             <span className="eyebrow">ORRY Serenity Kiss</span>
-            <h1>Operations Command Center</h1>
-            <p>Commercial control, inventory posture, billing discipline, and settlement readiness in one premium operator surface.</p>
+            <h1>ศูนย์ควบคุมงานหลังบ้าน</h1>
+            <p>ควบคุมข้อมูลบริษัท ลูกค้า สินค้า เอกสาร และบัญชีธนาคารจากพื้นที่ทำงานเดียวที่อ่านง่ายและพร้อมใช้งานจริง</p>
           </div>
 
           <nav className="nav-list" aria-label="Primary navigation">
@@ -49,20 +45,20 @@ export async function AppShell({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="sidebar-support subtle-panel">
-            <span className="eyebrow">Today</span>
+            <span className="eyebrow">วันนี้</span>
             <strong>{now}</strong>
-            <p>High-priority commercial actions, approvals, and collections stay centered in this workspace.</p>
+            <p>งานเร่งด่วน การอนุมัติ และการติดตามสถานะจะถูกรวมไว้ในพื้นที่ทำงานนี้</p>
           </div>
 
           <div className="sidebar-footer chrome-panel subtle-panel">
-            <div>
-              <small>Signed in as</small>
-              <strong>{session?.user?.name ?? "ORRY operator"}</strong>
-              <p>{session?.user?.role ?? "GUEST"}</p>
+            <div className="sidebar-footer-copy">
+              <small>ลงชื่อเข้าใช้เป็น</small>
+              <strong>{session?.user?.name ?? "ผู้ใช้งาน ORRY"}</strong>
+              <p>{session?.user?.role ? thaiRoleLabels[session.user.role] : "ผู้เยี่ยมชม"}</p>
             </div>
             <form action={signOutAction}>
               <button className="button ghost-button" type="submit">
-                Sign out
+                ออกจากระบบ
               </button>
             </form>
           </div>
@@ -70,18 +66,20 @@ export async function AppShell({ children }: { children: ReactNode }) {
 
         <main className="content-area">
           <header className="topbar chrome-panel">
-            <div>
-              <span className="eyebrow">Private operator deck</span>
-              <strong>Luxury beauty business systems with executive-grade visibility.</strong>
+            <div className="topbar-copy">
+              <span className="eyebrow">พื้นที่ทำงานส่วนตัว</span>
+              <strong>ระบบหลังบ้าน ORRY สำหรับงานบัญชี การขาย และการควบคุมข้อมูลหลัก</strong>
             </div>
             <div className="topbar-meta">
               <div className="topbar-chip">
                 <span className="status-dot success" />
-                Live workspace
+                พื้นที่ใช้งานจริง
               </div>
-              <Link href="/settings" className="button ghost-button compact-button">
-                System settings
-              </Link>
+              {canAccessSensitiveSettings ? (
+                <Link href="/settings/company" className="button ghost-button compact-button">
+                  ตั้งค่าระบบ
+                </Link>
+              ) : null}
             </div>
           </header>
           <div className="content">{children}</div>

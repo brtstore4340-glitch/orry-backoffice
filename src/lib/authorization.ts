@@ -56,7 +56,7 @@ export function assertStatusTransitionPolicy(input: {
 
   if (nextStatus === "PAID") {
     requireRole(actor, ["ADMIN", "FINANCE", "EXECUTIVE"]);
-    if (!["BILLING_RECORD", "RECEIPT"].includes(kind)) {
+    if (!["BILLING_RECORD", "RECEIPT", "EXPENSE"].includes(kind)) {
       throw new SecurityError();
     }
     if (paymentTotal < documentTotal) {

@@ -5,7 +5,7 @@ export function DetailPanel({ title, subtitle, children }: { title: string; subt
     <section className="workspace chrome-panel detail-shell">
       <div className="section-heading">
         <div>
-          <span className="eyebrow">Record detail</span>
+          <span className="eyebrow">รายละเอียดรายการ</span>
           <h2>{title}</h2>
           {subtitle ? <p>{subtitle}</p> : null}
         </div>

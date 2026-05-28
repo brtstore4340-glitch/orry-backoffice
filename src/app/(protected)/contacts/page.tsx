@@ -1,46 +1,49 @@
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
+
+import Link from "next/link";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { DataTable } from "@/components/data-table/data-table";
 import { SimpleForm } from "@/components/forms/simple-form";
 import { StatusBadge } from "@/components/status/status-badge";
-import { Workspace } from "@/components/app-shell/workspace";
 import { createContactAction } from "@/app/(protected)/actions";
 import { getContacts } from "@/lib/repository";
+import { thaiContactTypeLabels } from "@/lib/orry-labels";
+import { thaiCanonicalTerms } from "@/lib/thai-terminology";
 
 export default async function ContactsPage() {
   const contacts = await getContacts();
 
   return (
     <>
-      <PageHeader title="Accounts" description="Customer, vendor, and partner records used across proposals, orders, billing, and collection." />
+      <PageHeader title="ผู้ติดต่อ" description={`จัดการลูกค้า ผู้ขาย และ${thaiCanonicalTerms.partner}ที่ใช้งานในเอกสารของ ORRY`} />
       <div className="content-grid two-up">
-        <SimpleForm title="Create account" description="Create a live account record with ORRY-owned naming and contact metadata.">
+        <SimpleForm title="เพิ่มผู้ติดต่อ" description={`บันทึกข้อมูลลูกค้า ผู้ขาย หรือ${thaiCanonicalTerms.partner}ใหม่`}>
           <form action={createContactAction} className="stack-form compact-form">
             <label>
-              <span>Account code</span>
-              <input className="input" name="code" placeholder="ACCT-003" />
+              <span>รหัสผู้ติดต่อ</span>
+              <input className="input" name="code" placeholder="CNT-003" required />
             </label>
             <label>
-              <span>Display name</span>
-              <input className="input" name="displayName" placeholder="New retail partner" />
+              <span>ชื่อที่แสดง</span>
+              <input className="input" name="displayName" placeholder="คู่ค้ารายใหม่" required />
             </label>
             <label>
-              <span>Contact person</span>
-              <input className="input" name="contactPerson" placeholder="Primary buyer" />
+              <span>ผู้ติดต่อหลัก</span>
+              <input className="input" name="contactPerson" placeholder="ชื่อผู้ประสานงาน" />
             </label>
             <label>
-              <span>Email</span>
-              <input className="input" name="email" type="email" placeholder="contact@account.co" />
+              <span>อีเมล</span>
+              <input className="input" name="email" type="email" placeholder="contact@example.co" />
             </label>
-            <button className="button" type="submit">Create account</button>
+            <button className="button" type="submit">บันทึกผู้ติดต่อ</button>
           </form>
         </SimpleForm>
-        <Workspace>
+        <section className="workspace chrome-panel">
           <div className="section-heading">
             <div>
-              <span className="eyebrow">Health overview</span>
-              <h2>Account health</h2>
-              <p>Document workload and communication readiness for active accounts.</p>
+              <span className="eyebrow">ภาพรวม</span>
+              <h2>{thaiCanonicalTerms.contactsOverview}</h2>
+              <p>ดูจำนวนเอกสารค้างและความพร้อมในการติดต่อของแต่ละราย</p>
             </div>
           </div>
           <div className="stack-list">
@@ -48,35 +51,36 @@ export default async function ContactsPage() {
               <article key={contact.id} className="subtle-panel list-row emphasis-row">
                 <div>
                   <strong>{contact.displayName}</strong>
-                  <p>{contact.contactPerson ?? "No contact owner"}</p>
+                  <p>{contact.contactPerson ?? "ยังไม่มีผู้ติดต่อหลัก"}</p>
                 </div>
-                <StatusBadge label={`${contact.openDocuments} open`} tone={contact.openDocuments ? "warning" : "success"} />
+                <StatusBadge label={contact.openDocuments ? "OPEN" : "ACTIVE"} tone={contact.openDocuments ? "warning" : "success"} />
               </article>
             ))}
           </div>
-        </Workspace>
+        </section>
       </div>
-      <Workspace>
+      <section className="workspace chrome-panel">
         <div className="section-heading">
           <div>
-            <span className="eyebrow">Directory</span>
-            <h2>All accounts</h2>
-            <p>Operational directory for customer, vendor, and partner records.</p>
+              <span className="eyebrow">รายชื่อทั้งหมด</span>
+              <h2>{thaiCanonicalTerms.contactsDirectory}</h2>
+              <p>{`ข้อมูลใช้งานจริงสำหรับลูกค้า ผู้ขาย และ${thaiCanonicalTerms.partner}`}</p>
           </div>
-          <div className="section-meta-chip">{contacts.length} accounts</div>
+          <div className="section-meta-chip">{contacts.length} รายการ</div>
         </div>
         <DataTable
-          columns={["Code", "Name", "Type", "Owner", "Email", "Open docs"]}
+          columns={["รหัส", "ชื่อ", "ประเภท", "ผู้ติดต่อหลัก", "อีเมล", "เปิดเอกสาร", "รายละเอียด"]}
           rows={contacts.map((contact) => [
             contact.code,
-            contact.displayName,
-            contact.type.replaceAll("_", " "),
+            <Link key={`${contact.id}-name`} href={`/contacts/${contact.id}`} className="inline-link">{contact.displayName}</Link>,
+            thaiContactTypeLabels[contact.type],
             contact.contactPerson ?? "-",
             contact.email ?? "-",
-            contact.openDocuments.toString()
+            contact.openDocuments.toString(),
+            <Link key={`${contact.id}-detail`} href={`/contacts/${contact.id}/edit`} className="inline-link">แก้ไข</Link>
           ])}
         />
-      </Workspace>
+      </section>
     </>
   );
 }

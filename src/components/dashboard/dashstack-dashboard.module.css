@@ -1,0 +1,1119 @@
+.stage {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+  padding: 4px 2px 14px;
+  color: var(--foreground);
+  font-family: var(--font-dashboard-sans, var(--font-prompt), var(--font-sans));
+}
+
+.overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.overviewCopy,
+.metricsRail,
+.leftPanel,
+.canvasWindow,
+.calloutCard,
+.metricCard,
+.moduleCard,
+.chartPanel,
+.statCard,
+.sidebar,
+.headerBar,
+.chartSummary,
+.profileButton,
+.languageButton,
+.iconButton {
+  border: 1px solid rgba(63, 63, 70, 0.82);
+  box-shadow: 0 24px 54px rgba(0, 0, 0, 0.36);
+}
+
+.overviewCopy,
+.leftPanel,
+.canvasWindow,
+.calloutCard,
+.metricCard,
+.moduleCard,
+.chartPanel,
+.statCard,
+.sidebar,
+.headerBar {
+  background:
+    linear-gradient(180deg, rgba(29, 29, 33, 0.94), rgba(17, 17, 20, 0.96)),
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.04), transparent 34%);
+  backdrop-filter: blur(14px);
+}
+
+.overviewCopy {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: 14px;
+  padding: 30px 32px;
+  border-radius: 30px;
+}
+
+.overviewCopy::after {
+  content: "";
+  position: absolute;
+  inset: auto 28px -28px auto;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+
+.eyebrow,
+.moduleEyebrow,
+.noteLabel,
+.calloutLabel,
+.moduleHeader span,
+.slimAction,
+.stateBadge,
+.metricCard span:first-child,
+.brandEyebrow,
+.navLabel,
+.sectionEyebrow,
+.trendBadge {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+}
+
+.eyebrow,
+.brandEyebrow,
+.sectionEyebrow,
+.navLabel,
+.moduleEyebrow,
+.noteLabel,
+.calloutLabel,
+.metricCard span:first-child,
+.slimAction,
+.stateBadge {
+  color: var(--accent);
+}
+
+.eyebrow,
+.brandEyebrow,
+.sectionEyebrow,
+.navLabel,
+.moduleEyebrow,
+.noteLabel,
+.calloutLabel,
+.metricCard span:first-child,
+.slimAction {
+  font-size: 0.7rem;
+}
+
+.overviewCopy h1 {
+  margin: 0;
+  max-width: 14ch;
+  color: var(--foreground);
+  font-size: clamp(2.5rem, 4.2vw, 4.4rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  font-family: var(--font-display);
+}
+
+.overviewCopy p,
+.metricCard small,
+.leftPanel li,
+.calloutCard p,
+.commandField span,
+.presetMeta span,
+.profileMeta span,
+.chartHeader p,
+.chartSummary span,
+.sidebarItemLabel,
+.logoCaption {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.metricsRail,
+.rightPanel,
+.canvasBody,
+.sideInsights {
+  display: grid;
+  gap: 16px;
+}
+
+.metricCard {
+  display: grid;
+  gap: 8px;
+  padding: 20px 22px;
+  border-radius: 24px;
+}
+
+.metricCard strong,
+.chartSummary strong,
+.profileMeta strong,
+.statCard strong,
+.moduleHeader h3,
+.slimHeader h3,
+.chartHeader h2,
+.calloutCard strong,
+.logoText {
+  color: var(--foreground);
+}
+
+.metricCard strong {
+  font-size: 1.45rem;
+  line-height: 1.1;
+}
+
+.showcase {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(240px, 0.85fr) minmax(0, 1.45fr) minmax(240px, 0.8fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.leftPanel,
+.calloutCard {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  padding: 26px 28px;
+  border-radius: 28px;
+}
+
+.leftPanel {
+  align-content: start;
+}
+
+.leftPanel h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+  line-height: 1.03;
+  letter-spacing: -0.04em;
+  font-family: var(--font-display);
+}
+
+.noteList {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 12px;
+}
+
+.heroChipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.heroChip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--foreground-soft);
+  font-size: 0.8rem;
+}
+
+.canvasWrap {
+  min-width: 0;
+}
+
+.canvasWindow {
+  position: relative;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 18px;
+  min-height: 820px;
+  padding: 22px;
+  border-radius: 30px;
+}
+
+.toolRail {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 14px 8px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(24, 24, 27, 0.98), rgba(17, 17, 20, 0.96));
+  border: 1px solid rgba(63, 63, 70, 0.78);
+}
+
+.toolGlyph,
+.toolGlyphActive {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin: 0 auto;
+  border-radius: 14px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.toolGlyph {
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.toolGlyphActive {
+  color: #09090b;
+  background: linear-gradient(135deg, var(--primary-action), var(--primary-action-strong));
+  box-shadow: 0 12px 26px rgba(255, 255, 255, 0.14);
+}
+
+.moduleCard {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 24px;
+}
+
+.moduleCard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid transparent;
+  pointer-events: none;
+}
+
+.moduleViolet::after {
+  border-color: rgba(96, 165, 250, 0.2);
+}
+
+.moduleBlue::after {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.moduleCoral::after {
+  border-color: rgba(251, 113, 133, 0.2);
+}
+
+.moduleMint::after {
+  border-color: rgba(52, 211, 153, 0.2);
+}
+
+.moduleHeader,
+.slimHeader,
+.chartHeader {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.moduleHeader h3,
+.slimHeader h3,
+.chartHeader h2 {
+  margin: 0;
+  font-size: 1.42rem;
+  letter-spacing: -0.03em;
+}
+
+.refreshButton,
+.detailButton,
+.fetchButton,
+.primaryAction,
+.sidebarItem,
+.iconButton,
+.languageButton,
+.profileButton {
+  border: 0;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease, background 180ms ease, border-color 180ms ease;
+}
+
+.refreshButton:hover,
+.detailButton:hover,
+.fetchButton:hover,
+.primaryAction:hover,
+.sidebarItem:hover,
+.iconButton:hover,
+.languageButton:hover,
+.profileButton:hover {
+  transform: translateY(-1px);
+}
+
+.refreshButton:focus-visible,
+.detailButton:focus-visible,
+.fetchButton:focus-visible,
+.primaryAction:focus-visible,
+.sidebarItem:focus-visible,
+.iconButton:focus-visible,
+.languageButton:focus-visible,
+.profileButton:focus-visible {
+  outline: 2px solid rgba(241, 201, 162, 0.42);
+  outline-offset: 3px;
+}
+
+.refreshButton {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--primary-action), var(--primary-action-strong));
+  color: #09090b;
+}
+
+.toolbarIcon,
+.inlineIcon,
+.headerIcon,
+.chevronIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.commandBar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  gap: 10px;
+}
+
+.graphFlow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.graphFlowItem {
+  display: grid;
+  gap: 12px;
+}
+
+.graphNode {
+  display: grid;
+  gap: 12px;
+  min-height: 164px;
+  padding: 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.graphNodeIdle {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+}
+
+.graphNodeActive {
+  background: linear-gradient(180deg, rgba(52, 211, 153, 0.14), rgba(255, 255, 255, 0.02));
+  border-color: rgba(52, 211, 153, 0.24);
+}
+
+.graphNodePaused {
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.12), rgba(255, 255, 255, 0.02));
+  border-color: rgba(251, 191, 36, 0.22);
+}
+
+.graphNodeDegraded {
+  background: linear-gradient(180deg, rgba(251, 113, 133, 0.12), rgba(255, 255, 255, 0.02));
+  border-color: rgba(251, 113, 133, 0.22);
+}
+
+.graphNodeOffline {
+  background: linear-gradient(180deg, rgba(109, 100, 125, 0.14), rgba(255, 255, 255, 0.02));
+  border-color: rgba(109, 100, 125, 0.24);
+}
+
+.graphNodeHeader,
+.surfaceCardHeader {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.graphNodeValue {
+  font-size: 1.22rem;
+  line-height: 1.1;
+}
+
+.graphNodeDetail,
+.detailCard p,
+.surfaceCard p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.graphConnector {
+  width: calc(100% - 36px);
+  height: 2px;
+  margin: 0 auto;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.06));
+}
+
+.commandField {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.commandField strong {
+  color: var(--foreground);
+  font-size: 1rem;
+}
+
+.fetchButton,
+.detailButton,
+.languageButton,
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--foreground);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.fetchButton {
+  min-height: 100%;
+  white-space: nowrap;
+}
+
+.tableCard {
+  overflow: hidden;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.tableHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.stateBadge,
+.trendBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 0.64rem;
+}
+
+.stateBadge {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.stateIdle {
+  background: rgba(188, 177, 198, 0.12);
+  color: var(--muted-strong);
+}
+
+.stateActive {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--success);
+}
+
+.statePaused {
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--warning);
+}
+
+.stateDegraded {
+  background: rgba(251, 113, 133, 0.12);
+  color: var(--danger);
+}
+
+.stateOffline {
+  background: rgba(109, 100, 125, 0.2);
+  color: var(--muted);
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.dataTable th,
+.dataTable td {
+  padding: 14px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: center;
+  color: var(--foreground-soft);
+  font-size: 0.85rem;
+}
+
+.dataTable thead th,
+.dataTable tbody th {
+  color: var(--foreground);
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.paletteStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 6px 2px 2px;
+}
+
+.paletteDot {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+}
+
+.presetGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.presetCard {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 14px 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.pieWrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+}
+
+.pieHalo {
+  position: absolute;
+  inset: 8px;
+  border-radius: 999px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--pie-accent) 26%, transparent), transparent 68%);
+}
+
+.pie {
+  width: 74px;
+  height: 74px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(18, 14, 25, 0.98) 0 28%, transparent 29%),
+    conic-gradient(var(--pie-accent) 0 34%, #34d399 34% 61%, #60a5fa 61% 84%, #ffffff 84% 100%);
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.08), 0 12px 22px rgba(4, 2, 8, 0.2);
+}
+
+.presetMeta {
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+}
+
+.presetMeta strong {
+  color: var(--foreground);
+  font-size: 1.05rem;
+}
+
+.detailButton {
+  color: var(--foreground);
+}
+
+.primaryAction {
+  min-height: 56px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--primary-action), var(--primary-action-strong));
+  color: #09090b;
+  font-size: 1rem;
+  font-weight: 700;
+  box-shadow: 0 20px 32px rgba(255, 255, 255, 0.12);
+}
+
+.detailGrid,
+.surfaceList {
+  display: grid;
+  gap: 12px;
+}
+
+.detailGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.detailCard,
+.surfaceCard {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.detailCard strong,
+.surfaceCard strong {
+  color: var(--foreground);
+}
+
+.calloutBlue {
+  background:
+    linear-gradient(180deg, rgba(30, 30, 35, 0.96), rgba(20, 20, 24, 0.98)),
+    radial-gradient(circle at top right, rgba(96, 165, 250, 0.16), transparent 30%);
+}
+
+.calloutCoral {
+  background:
+    linear-gradient(180deg, rgba(30, 30, 35, 0.96), rgba(20, 20, 24, 0.98)),
+    radial-gradient(circle at top right, rgba(251, 113, 133, 0.16), transparent 30%);
+}
+
+.calloutMint {
+  background:
+    linear-gradient(180deg, rgba(30, 30, 35, 0.96), rgba(20, 20, 24, 0.98)),
+    radial-gradient(circle at top right, rgba(52, 211, 153, 0.16), transparent 30%);
+}
+
+.pageWrap {
+  position: relative;
+}
+
+.dashboardShell {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 20px;
+  min-height: calc(100vh - 76px);
+}
+
+.sidebar {
+  display: grid;
+  gap: 24px;
+  align-content: start;
+  padding: 26px 22px;
+  border-radius: 28px;
+}
+
+.logoBlock {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logoMark {
+  display: grid;
+  grid-template-columns: repeat(2, 10px);
+  gap: 6px;
+  padding: 12px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+}
+
+.logoMark span {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffffff, #d4d4d8);
+}
+
+.logoText {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.logoCaption {
+  font-size: 0.8rem;
+}
+
+.navGroup {
+  display: grid;
+  gap: 10px;
+}
+
+.navList {
+  display: grid;
+  gap: 8px;
+}
+
+.sidebarItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--foreground-soft);
+  border: 1px solid transparent;
+  text-align: left;
+}
+
+.sidebarItemActive {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--foreground);
+}
+
+.sidebarItemIcon {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(218, 157, 182, 0.12));
+}
+
+.sidebarItemActive .sidebarItemIcon {
+  background: #ffffff;
+}
+
+.headerBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border-radius: 24px;
+}
+
+.searchField {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  max-width: 480px;
+  min-height: 52px;
+  padding: 0 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.searchField input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--foreground);
+  outline: none;
+}
+
+.searchField input::placeholder {
+  color: var(--muted);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.notificationDot {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--danger);
+  box-shadow: 0 0 0 3px rgba(17, 14, 24, 0.96);
+}
+
+.profileButton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 50px;
+  padding: 6px 12px 6px 6px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--foreground);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.profileAvatar {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--primary-action), var(--primary-action-strong));
+  color: #09090b;
+  font-weight: 800;
+}
+
+.profileMeta {
+  display: grid;
+  text-align: left;
+}
+
+.statCard {
+  display: grid;
+  gap: 12px;
+  padding: 22px;
+  border-radius: 24px;
+}
+
+.statHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.trendPositive {
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--success);
+}
+
+.trendNegative {
+  background: rgba(251, 113, 133, 0.12);
+  color: var(--danger);
+}
+
+.miniBars {
+  display: flex;
+  gap: 6px;
+  align-items: end;
+  height: 26px;
+}
+
+.miniBars span {
+  width: 8px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(161, 161, 170, 0.88));
+}
+
+.miniBars span:nth-child(1) {
+  height: 12px;
+}
+
+.miniBars span:nth-child(2) {
+  height: 18px;
+}
+
+.miniBars span:nth-child(3) {
+  height: 14px;
+}
+
+.miniBars span:nth-child(4) {
+  height: 24px;
+}
+
+.accentGold::after,
+.accentPurple::after,
+.accentCoral::after,
+.accentMint::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
+  pointer-events: none;
+}
+
+.chartPanel {
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+  border-radius: 28px;
+}
+
+.chartSummary {
+  display: grid;
+  gap: 4px;
+  min-width: 180px;
+  padding: 16px 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.chartCanvas {
+  overflow-x: auto;
+}
+
+.chartCanvas svg {
+  width: 100%;
+  min-width: 620px;
+  height: auto;
+}
+
+.chartGridLine {
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1;
+}
+
+.chartLine {
+  fill: none;
+  stroke: var(--primary-action);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chartPointOuter {
+  fill: rgba(17, 14, 24, 0.96);
+  stroke: var(--primary-action);
+  stroke-width: 3;
+}
+
+.chartPointInner {
+  fill: var(--primary-action-strong);
+}
+
+.chartAxisLabel {
+  fill: var(--muted);
+  font-size: 12px;
+}
+
+@media (max-width: 1380px) {
+  .showcase {
+    grid-template-columns: 1fr;
+  }
+
+  .rightPanel {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1200px) {
+  .overview,
+  .dashboardShell {
+    grid-template-columns: 1fr;
+  }
+
+  .commandBar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .graphFlow,
+  .detailGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .fetchButton {
+    min-height: 48px;
+  }
+
+  .presetGrid,
+  .rightPanel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .stage {
+    padding: 0;
+  }
+
+  .overviewCopy,
+  .leftPanel,
+  .canvasWindow,
+  .calloutCard,
+  .metricCard,
+  .chartPanel,
+  .sidebar,
+  .headerBar {
+    border-radius: 24px;
+  }
+
+  .canvasWindow {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding: 16px;
+  }
+
+  .toolRail {
+    grid-auto-flow: column;
+    grid-auto-columns: 42px;
+    justify-content: start;
+    overflow-x: auto;
+  }
+
+  .commandBar,
+  .presetGrid,
+  .graphFlow,
+  .detailGrid,
+  .rightPanel {
+    grid-template-columns: 1fr;
+  }
+
+  .headerBar,
+  .chartHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .headerActions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .graphConnector {
+    width: 2px;
+    height: 28px;
+  }
+}
+
+@media (max-width: 560px) {
+  .overviewCopy,
+  .leftPanel,
+  .canvasWindow,
+  .calloutCard,
+  .metricCard,
+  .moduleCard,
+  .chartPanel,
+  .sidebar,
+  .headerBar {
+    border-radius: 20px;
+  }
+
+  .overviewCopy,
+  .leftPanel,
+  .calloutCard,
+  .metricCard,
+  .moduleCard,
+  .chartPanel,
+  .sidebar,
+  .headerBar {
+    padding-inline: 18px;
+  }
+
+  .overviewCopy {
+    padding-block: 22px;
+  }
+
+  .leftPanel,
+  .calloutCard,
+  .metricCard,
+  .moduleCard,
+  .chartPanel,
+  .sidebar,
+  .headerBar {
+    padding-block: 18px;
+  }
+
+  .overviewCopy h1 {
+    font-size: clamp(2rem, 11vw, 2.9rem);
+  }
+
+  .leftPanel h2 {
+    font-size: clamp(1.55rem, 9vw, 2rem);
+  }
+}

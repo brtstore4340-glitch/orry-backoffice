@@ -1,0 +1,67 @@
+RangeError: Array buffer allocation failed
+    at new ArrayBuffer (<anonymous>)
+    at new Uint8Array (<anonymous>)
+ ⨯ uncaughtException: RangeError: Array buffer allocation failed
+    at new ArrayBuffer (<anonymous>)
+    at new Uint8Array (<anonymous>)
+ ⨯ uncaughtException:  RangeError: Array buffer allocation failed
+    at new ArrayBuffer (<anonymous>)
+    at new Uint8Array (<anonymous>)
+RangeError: Array buffer allocation failed
+    at new ArrayBuffer (<anonymous>)
+    at new Uint8Array (<anonymous>)
+ ⨯ uncaughtException: RangeError: Array buffer allocation failed
+    at new ArrayBuffer (<anonymous>)
+    at new Uint8Array (<anonymous>)
+ ⨯ uncaughtException:  RangeError: Array buffer allocation failed
+    at new ArrayBuffer (<anonymous>)
+    at new Uint8Array (<anonymous>)
+RangeError: Array buffer allocation failed
+    at new ArrayBuffer (<anonymous>)
+    at new Uint8Array (<anonymous>)
+ ⨯ uncaughtException: RangeError: Array buffer allocation failed
+    at new ArrayBuffer (<anonymous>)
+    at new Uint8Array (<anonymous>)
+ ⨯ uncaughtException:  RangeError: Array buffer allocation failed
+    at new ArrayBuffer (<anonymous>)
+    at new Uint8Array (<anonymous>)
+RangeError: Array buffer allocation failed
+    at new ArrayBuffer (<anonymous>)
+    at new Uint8Array (<anonymous>)
+ ⨯ uncaughtException: RangeError: Array buffer allocation failed
+    at new ArrayBuffer (<anonymous>)
+    at new Uint8Array (<anonymous>)
+ ⨯ uncaughtException:  RangeError: Array buffer allocation failed
+    at new ArrayBuffer (<anonymous>)
+    at new Uint8Array (<anonymous>)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: RangeError: Array buffer allocation failed
+
+<--- Last few GCs --->
+
+[10348:00000254C8C0F000]    22894 ms: Scavenge 245.1 (252.3) -> 244.4 (252.8) MB, pooled: 2 MB, 1.44 / 0.00 ms  (average mu = 0.071, current mu = 0.000) allocation failure; 
+[10348:00000254C8C0F000]    22909 ms: Scavenge 246.9 (254.3) -> 245.0 (253.7) MB, pooled: 2 MB, 1.09 / 0.00 ms  (average mu = 0.071, current mu = 0.000) allocation failure; 
+
+FATAL ERROR: Zone Allocation failed - process out of memory
+----- Native stack trace -----
+
+ 1: 00007FF7309DAD5F 
+ 2: 00007FF7316232D7 
+ 3: 00007FF730F9E076 
+ 4: 00007FF7325B07BB 
+ 5: 00007FF7325A4B6B 
+ 6: 00007FF7325A4315 
+ 7: 00007FF7325B3360 
+ 8: 00007FF73247376D 
+ 9: 00007FF73201E264 
+10: 00007FF732001574 
+11: 00007FF731FF7F2B 
+12: 00007FF731FF7303 
+13: 00007FF731596F0F 
+14: 00007FF73155BF9D 
+15: 00007FF73155BC95 
+16: 00007FF731DF593F 
+17: 00007FF73092ADCE 
+18: 00007FF731678646 
+19: 00007FF7328B9FB3 
+20: 00007FFA58177374 
+21: 00007FFA5937CC91 RtlUserThreadStart+33

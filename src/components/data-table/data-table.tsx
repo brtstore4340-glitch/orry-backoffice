@@ -15,7 +15,12 @@ export function DataTable({ columns, rows }: { columns: string[]; rows: ReactNod
           {rows.map((row, index) => (
             <tr key={index}>
               {row.map((cell, cellIndex) => (
-                <td key={`${index}-${cellIndex}`}>{cell}</td>
+                <td
+                  key={`${index}-${cellIndex}`}
+                  className={cellIndex === 0 ? "table-cell-primary" : cellIndex === row.length - 1 ? "table-cell-secondary" : undefined}
+                >
+                  {cell}
+                </td>
               ))}
             </tr>
           ))}

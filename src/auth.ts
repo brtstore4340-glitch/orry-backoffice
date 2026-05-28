@@ -1,19 +1,25 @@
 import "server-only";
-import { headers } from "next/headers";
+import { createHmac, timingSafeEqual } from "crypto";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { recordSecurityEvent } from "@/lib/audit";
+import { getPrisma } from "@/lib/db";
+import { verifyPassword } from "@/lib/security";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { RoleCode, UserSession } from "@/lib/types";
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 const DEFAULT_BOOTSTRAP_ROLE: RoleCode = "SALES";
+const LOCAL_SESSION_COOKIE = "orry_local_session";
+const LOCAL_SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 
 type SessionResult = {
   user: UserSession;
 };
 
 type AuthMetadata = Record<string, unknown> | null | undefined;
+type LocalSessionPayload = UserSession & { exp: number };
 
 declare global {
   var orryLoginRateLimit: Map<string, { count: number; expiresAt: number }> | undefined;
@@ -65,6 +71,60 @@ function registerFailedAttempt(key: string) {
 
 function clearFailedAttempts(key: string) {
   getRateLimitStore().delete(key);
+}
+
+function getLocalSessionSecret() {
+  return process.env.AUTH_SECRET || "orry-local-auth-secret";
+}
+
+function encodeLocalSession(payload: LocalSessionPayload) {
+  const body = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  const signature = createHmac("sha256", getLocalSessionSecret()).update(body).digest("base64url");
+  return `${body}.${signature}`;
+}
+
+function decodeLocalSession(token: string | undefined) {
+  if (!token) return null;
+  const [body, signature] = token.split(".");
+  if (!body || !signature) return null;
+
+  const expected = createHmac("sha256", getLocalSessionSecret()).update(body).digest();
+  const received = Buffer.from(signature, "base64url");
+  if (expected.byteLength !== received.byteLength || !timingSafeEqual(expected, received)) {
+    return null;
+  }
+
+  try {
+    const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf8")) as LocalSessionPayload;
+    if (!payload?.id || !payload?.email || !payload?.role || payload.exp <= Date.now()) {
+      return null;
+    }
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+async function setLocalSessionCookie(user: UserSession) {
+  const store = await cookies();
+  store.set(LOCAL_SESSION_COOKIE, encodeLocalSession({ ...user, exp: Date.now() + LOCAL_SESSION_TTL_MS }), {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    expires: new Date(Date.now() + LOCAL_SESSION_TTL_MS),
+  });
+}
+
+async function clearLocalSessionCookie() {
+  const store = await cookies();
+  store.set(LOCAL_SESSION_COOKIE, "", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    expires: new Date(0),
+  });
 }
 
 function readString(value: unknown) {
@@ -121,6 +181,17 @@ function toSession(authUser: { id: string; email?: string | null; app_metadata?:
   };
 }
 
+function toLocalSession(user: { id: string; email: string; name: string; role?: { code?: RoleCode | null } | null }): SessionResult {
+  return {
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email.trim().toLowerCase(),
+      role: resolveRoleCode(user.role?.code),
+    },
+  };
+}
+
 async function resolveSupabaseSession() {
   try {
     const supabase = await createSupabaseServerClient();
@@ -143,8 +214,54 @@ async function resolveSupabaseSession() {
   }
 }
 
+async function resolveLocalSession() {
+  try {
+    const store = await cookies();
+    const payload = decodeLocalSession(store.get(LOCAL_SESSION_COOKIE)?.value);
+    if (!payload) {
+      return null;
+    }
+
+    return {
+      user: {
+        id: payload.id,
+        name: payload.name,
+        email: payload.email,
+        role: payload.role,
+      },
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function authenticateWithLocalUser(email: string, password: string) {
+  const prisma = getPrisma() as any;
+  if (!prisma) return null;
+
+  const user = await prisma.user.findUnique({
+    where: { email },
+    include: { role: true },
+  });
+
+  if (!user?.passwordHash || !verifyPassword(password, user.passwordHash)) {
+    return null;
+  }
+
+  if (!user.active || user.approvalStatus !== "APPROVED") {
+    return { status: "ineligible" as const, session: null, actorId: user.id };
+  }
+
+  return { status: "ok" as const, session: toLocalSession(user), actorId: user.id };
+}
+
 export async function auth() {
-  return resolveSupabaseSession();
+  const supabaseSession = await resolveSupabaseSession();
+  if (supabaseSession) {
+    return supabaseSession;
+  }
+
+  return resolveLocalSession();
 }
 
 export async function signIn(
@@ -167,48 +284,78 @@ export async function signIn(
   }
 
   const supabase = await createSupabaseServerClient();
-  const signInResult = await supabase.auth.signInWithPassword({
-    email: normalizedEmail,
-    password: options.password,
-  });
+  let signInResult:
+    | Awaited<ReturnType<typeof supabase.auth.signInWithPassword>>
+    | null = null;
 
-  if (signInResult.error || !signInResult.data.user) {
-    registerFailedAttempt(rateLimitKey);
-    await recordSecurityEvent({
-      action: "auth.login.failed",
-      success: false,
-      detail: "Login failed.",
-      metadata: { emailLength: normalizedEmail.length },
+  try {
+    signInResult = await supabase.auth.signInWithPassword({
+      email: normalizedEmail,
+      password: options.password,
     });
-    redirect("/login?error=invalid");
+  } catch {
+    signInResult = null;
   }
 
-  if (!isEligibleForAccess(signInResult.data.user.app_metadata)) {
-    await supabase.auth.signOut();
-    registerFailedAttempt(rateLimitKey);
+  if (signInResult?.data?.user && !signInResult.error) {
+    if (!isEligibleForAccess(signInResult.data.user.app_metadata)) {
+      await supabase.auth.signOut();
+      registerFailedAttempt(rateLimitKey);
+      await recordSecurityEvent({
+        actorId: resolveActorId(signInResult.data.user),
+        action: "auth.login.failed",
+        success: false,
+        targetType: "User",
+        targetId: resolveActorId(signInResult.data.user),
+        detail: "Login denied because the account is not active and approved.",
+      });
+      redirect("/login?error=invalid");
+    }
+
+    await clearLocalSessionCookie();
+    clearFailedAttempts(rateLimitKey);
+
     await recordSecurityEvent({
       actorId: resolveActorId(signInResult.data.user),
-      action: "auth.login.failed",
-      success: false,
+      action: "auth.login.success",
+      success: true,
       targetType: "User",
       targetId: resolveActorId(signInResult.data.user),
-      detail: "Login denied because the account is not active and approved.",
+      detail: "Login succeeded through Supabase Auth.",
     });
-    redirect("/login?error=invalid");
+
+    redirect(options.redirectTo || "/dashboard");
   }
 
-  clearFailedAttempts(rateLimitKey);
+  const localAuth = await authenticateWithLocalUser(normalizedEmail, options.password);
+  if (localAuth?.status === "ok" && localAuth.session) {
+    await setLocalSessionCookie(localAuth.session.user);
+    clearFailedAttempts(rateLimitKey);
+    await recordSecurityEvent({
+      actorId: localAuth.actorId,
+      action: "auth.login.success",
+      success: true,
+      targetType: "User",
+      targetId: localAuth.actorId,
+      detail: "Login succeeded through local Prisma fallback.",
+    });
+    redirect(options.redirectTo || "/dashboard");
+  }
 
+  registerFailedAttempt(rateLimitKey);
   await recordSecurityEvent({
-    actorId: resolveActorId(signInResult.data.user),
-    action: "auth.login.success",
-    success: true,
-    targetType: "User",
-    targetId: resolveActorId(signInResult.data.user),
-    detail: "Login succeeded through Supabase Auth.",
+    actorId: localAuth?.actorId,
+    action: "auth.login.failed",
+    success: false,
+    targetType: localAuth?.actorId ? "User" : undefined,
+    targetId: localAuth?.actorId,
+    detail: localAuth?.status === "ineligible" ? "Login denied because the account is not active and approved." : "Login failed.",
+    metadata: {
+      emailLength: normalizedEmail.length,
+      supabaseError: signInResult?.error ? String(signInResult.error.message ?? signInResult.error.name ?? "unknown") : undefined,
+    },
   });
-
-  redirect(options.redirectTo || "/dashboard");
+  redirect("/login?error=invalid");
 }
 
 export async function signOut(options?: { redirectTo?: string }) {
@@ -220,6 +367,8 @@ export async function signOut(options?: { redirectTo?: string }) {
   } catch {
     // Best-effort sign-out.
   }
+
+  await clearLocalSessionCookie();
 
   await recordSecurityEvent({
     actorId: session?.user?.id,

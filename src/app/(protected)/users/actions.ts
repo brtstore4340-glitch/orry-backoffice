@@ -29,13 +29,13 @@ export async function createManagedUserAction(formData: FormData) {
       employeeId: String(formData.get("employeeId") ?? ""),
       dateOfBirth: String(formData.get("dateOfBirth") ?? "")
     });
-    revalidatePath("/users");
-    redirect("/users?status=created");
+    revalidatePath("/admin/users");
+    redirect("/admin/users?status=created");
   } catch (error) {
     if (isEmailTransportError(error)) {
-      redirect("/users?error=email");
+      redirect("/admin/users?error=email");
     }
-    redirect("/users?error=create");
+    redirect("/admin/users?error=create");
   }
 }
 
@@ -48,9 +48,10 @@ export async function reviewRegistrationAction(formData: FormData) {
       userId: String(formData.get("userId") ?? ""),
       decision: String(formData.get("decision") ?? "") === "reject" ? "reject" : "approve"
     });
-    revalidatePath("/users");
-    redirect("/users?status=reviewed");
+    revalidatePath("/admin/users");
+    revalidatePath("/admin/approvals");
+    redirect("/admin/approvals?status=reviewed");
   } catch {
-    redirect("/users?error=review");
+    redirect("/admin/approvals?error=review");
   }
 }

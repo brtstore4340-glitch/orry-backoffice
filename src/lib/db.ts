@@ -1,4 +1,6 @@
 import { getRuntimeEnv, isProduction } from "@/lib/env";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "@prisma/client";
 
 declare global {
   var prismaGlobal: any | undefined;
@@ -16,11 +18,8 @@ export function getPrisma() {
 
   if (!global.prismaGlobal) {
     try {
-      // Lazily require Prisma to avoid loading it at module-import time
-      // which can trigger initialization on routes that don't need DB.
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { PrismaClient } = require("@prisma/client");
-      global.prismaGlobal = new PrismaClient();
+      const adapter = new PrismaPg({ connectionString: env.DATABASE_URL });
+      global.prismaGlobal = new PrismaClient({ adapter });
     } catch {
       return null;
     }
