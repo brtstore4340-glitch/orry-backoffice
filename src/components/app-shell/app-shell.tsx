@@ -33,9 +33,9 @@ export async function AppShell({ children }: { children: ReactNode }) {
       <div className="shell">
         <aside className="sidebar chrome-panel">
           <div className="brand-block">
-            <span className="eyebrow">ORRY Serenity Kiss</span>
-            <h1>ศูนย์ควบคุมงานหลังบ้าน</h1>
-            <p>ควบคุมข้อมูลบริษัท ลูกค้า สินค้า เอกสาร และบัญชีธนาคารจากพื้นที่ทำงานเดียวที่อ่านง่ายและพร้อมใช้งานจริง</p>
+            <span className="eyebrow">ศูนย์ควบคุมงานหลังบ้าน</span>
+            <h1>ORRY Serenity Kiss</h1>
+            <p>ศูนย์ข้อมูลบริษัท ลูกค้า สินค้า เอกสาร และบัญชีธนาคารจากพื้นที่ทำงานเดียว ที่อ่านง่ายและพร้อมใช้งานจริง</p>
           </div>
 
           <nav className="nav-list" aria-label="Primary navigation">

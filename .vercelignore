@@ -1,0 +1,36 @@
+# Prevent local/dev artifacts and credentials from being uploaded by `vercel deploy`
+.env
+.env.*
+*.local
+.vercel
+node_modules
+.next
+coverage
+dist
+build
+
+# local smoke/test artifacts
+*.log
+*.err.log
+*.out.log
+*.headers*
+*.body*
+*.cookies*
+cookies.txt
+login-cookies.txt
+orry-cookies.txt
+test-cookies.txt
+test-signin.json
+env-check.json
+.tmp-*
+.live-*
+.smoke-*
+.next-start-*
+
+# local credential/helper scripts
+scripts/run-set-vercel-now.ps1
+scripts/run-login-post.ps1
+scripts/run-api-login.ps1
+
+# generated TS build caches
+*.tsbuildinfo

@@ -1,20 +1,43 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# ORRY Serenity Kiss B2B
 
-# Run and deploy your AI Studio app
+Lean luxury back-office preview for ORRY Serenity Kiss B2B.
 
-This contains everything you need to run your app locally.
+## Stack
 
-View your app in AI Studio: https://ai.studio/apps/66fbd3cd-4c9b-4cbd-9e07-6d702686807b
+- Vite 6
+- React 19
+- TypeScript
+- Tailwind CSS v4 via `@tailwindcss/vite`
+- `lucide-react` icons
+- `motion` for subtle UI transitions
 
-## Run Locally
+## Scope
 
-**Prerequisites:**  Node.js
+This package is a static front-end preview under the parent ORRY repository:
 
+`tools/orry-serenity-kiss-b2b/`
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+It does not currently connect to Supabase, Prisma, or any live backend. The login screen is a local preview gate only; production auth and approval rules must be implemented server-side before this is treated as a real back office.
+
+## Run locally
+
+```bash
+npm install
+npm run dev
+```
+
+Default dev server: `http://localhost:3000`
+
+## Validate
+
+```bash
+npm run lint
+npm run build
+```
+
+## Deployment notes
+
+- Build command: `npm run build`
+- Output directory: `dist`
+- No client-side API key is required.
+- Do not add service-role keys or private API tokens to Vite `define` values; they would be bundled into browser code.

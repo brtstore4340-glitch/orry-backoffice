@@ -72,6 +72,14 @@ enum PaymentDirection {
   OUTBOUND
 }
 
+enum LedgerAccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
 enum DocumentReferenceType {
   CONVERTED_FROM
   RELATED_TO
@@ -587,6 +595,36 @@ model AccountingLockPeriod {
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
   @@map("accounting_lock_periods")
+}
+
+model GeneralLedgerAccount {
+  id        String            @id @default(cuid())
+  code      String            @unique
+  name      String
+  type      LedgerAccountType
+  balance   Decimal           @default(0) @db.Decimal(14, 2)
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime          @updatedAt @map("updated_at")
+  journals  JournalEntry[]
+
+  @@map("general_ledger_accounts")
+}
+
+model JournalEntry {
+  id            String               @id @default(cuid())
+  journalNumber String               @unique @map("journal_number")
+  accountId     String               @map("account_id")
+  account       GeneralLedgerAccount @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  description   String
+  debit         Decimal              @default(0) @db.Decimal(14, 2)
+  credit        Decimal              @default(0) @db.Decimal(14, 2)
+  status        DocumentStatus       @default(DRAFT)
+  createdById   String?              @map("created_by_id")
+  postedAt      DateTime?            @map("posted_at")
+  createdAt     DateTime             @default(now()) @map("created_at")
+  updatedAt     DateTime             @updatedAt @map("updated_at")
+
+  @@map("journal_entries")
 }
 
 model DocumentStatusHistory {

@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "incremental": false,
+    "ignoreDeprecations": "5.0",
+    "tsBuildInfoFile": "./tsconfig.orry-erp-validation.tsbuildinfo"
+  },
+  "include": [
+    "../next-env.d.ts",
+    "../src/lib/orry/**/*.ts",
+    "../src/components/orry/**/*.tsx",
+    "../src/app/(orry)/**/*.tsx",
+    "../src/app/api/orry/**/*.ts",
+    "../src/server/orry/**/*.ts",
+    "../src/auth.ts",
+    "../src/lib/types.ts"
+  ]
+}

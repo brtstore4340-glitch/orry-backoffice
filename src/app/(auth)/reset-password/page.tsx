@@ -1,8 +1,15 @@
 export const runtime = "nodejs";
 
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { completePasswordReset, getResetSessionStatus } from "@/lib/user-management";
+import {
+  AuthInlineLink,
+  AuthNotice,
+  AuthPasswordField,
+  AuthScreen,
+  AuthSubmitButton,
+  AuthSuccess,
+} from "@/components/auth/auth-primitives";
 
 async function resetPasswordAction(formData: FormData) {
   "use server";
@@ -27,7 +34,7 @@ async function resetPasswordAction(formData: FormData) {
 }
 
 export default async function ResetPasswordPage({
-  searchParams
+  searchParams,
 }: {
   searchParams?: Promise<{ error?: string }>;
 }) {
@@ -35,64 +42,46 @@ export default async function ResetPasswordPage({
   const state = await getResetSessionStatus();
 
   return (
-    <main className="login-page">
-      <div className="auth-stage">
-        <div className="auth-stage-bar">
-          <div className="auth-brand-lockup">
-            <span className="auth-brand-mark">O</span>
-            <div className="auth-brand-copy">
-              <strong>ORRY Serenity Kiss</strong>
-              <span>Secure password reset</span>
-            </div>
-          </div>
-          <span className="topbar-chip">Session-bound reset</span>
-        </div>
-        <div className="login-shell chrome-panel compact-auth-shell auth-shell">
-        <section className="login-art">
-          <div className="stack-list">
-            <span className="eyebrow">การกู้คืนบัญชี</span>
-            <h1>ตั้งรหัสผ่านใหม่อย่างปลอดภัย</h1>
-            <p>การกู้คืนจะเสร็จสมบูรณ์เฉพาะเมื่อเซสชันรีเซ็ตยังใช้งานได้และบัญชีของคุณยังได้รับอนุมัติ</p>
-          </div>
-          <div className="auth-highlight-row single-column">
-            <article className="auth-highlight-card subtle-panel">
-              <span>Session status</span>
-              <strong>Approval and activity still enforced</strong>
-              <p>การตั้งรหัสผ่านใหม่จะสำเร็จได้เฉพาะกับเซสชันที่ยังใช้งานได้และบัญชีที่ยังผ่านเงื่อนไขเดิมของระบบ</p>
-            </article>
-          </div>
-        </section>
-        <section className="login-form">
-          <div>
-            <span className="eyebrow">รีเซ็ตรหัสผ่าน</span>
-            <h2>กำหนดรหัสผ่านใหม่</h2>
-            <p>{state.message}</p>
-            {search?.error === "policy" ? <p className="security-note danger-note">รหัสผ่านและการยืนยันไม่ตรงกัน หรือไม่ผ่านนโยบายรหัสผ่าน</p> : null}
-            {search?.error === "invalid" ? <p className="security-note danger-note">ลิงก์รีเซ็ตนี้ไม่ถูกต้องหรือใช้งานไม่ได้แล้ว</p> : null}
-          </div>
-          {state.valid ? (
-            <form action={resetPasswordAction} className="stack-form auth-form-panel">
-              <label>
-                <span>รหัสผ่านใหม่</span>
-                <input className="input" name="password" type="password" required />
-              </label>
-              <label>
-                <span>ยืนยันรหัสผ่าน</span>
-                <input className="input" name="confirmPassword" type="password" required />
-              </label>
-              <div className="auth-links-row">
-                <button className="button" type="submit">บันทึกรหัสผ่านใหม่</button>
-                <Link href="/login" className="inline-link">กลับไปหน้าเข้าสู่ระบบ</Link>
-              </div>
-            </form>
-          ) : (
-            <div className="stack-form">
-              <Link href="/forgot-password" className="inline-link">ขอลิงก์รีเซ็ตใหม่</Link>
-            </div>
-          )}
-        </section>
-        </div>
-      </div>
-    </main>
+    <AuthScreen
+      title="Reset password"
+      subtitle={state.valid ? state.message : "This reset session is no longer available."}
+      footer={
+        state.valid ? (
+          <>
+            Return to <AuthInlineLink href="/login">Log In</AuthInlineLink>
+          </>
+        ) : (
+          <>
+            Need another link? <AuthInlineLink href="/forgot-password">Request reset again</AuthInlineLink>
+          </>
+        )
+      }
+    >
+      {state.valid ? <AuthSuccess>Resetting password for {state.email}</AuthSuccess> : <AuthNotice>{state.message}</AuthNotice>}
+      {search?.error === "policy" ? (
+        <AuthNotice>Password confirmation does not match or password policy was not met.</AuthNotice>
+      ) : null}
+      {search?.error === "invalid" ? (
+        <AuthNotice>This reset link is invalid or has expired.</AuthNotice>
+      ) : null}
+
+      {state.valid ? (
+        <form action={resetPasswordAction} className="flex flex-col gap-6">
+          <AuthPasswordField
+            label="New Password"
+            name="password"
+            placeholder="Password 8-16 character"
+            autoComplete="new-password"
+          />
+          <AuthPasswordField
+            label="Confirm Password"
+            name="confirmPassword"
+            placeholder="Confirm password"
+            autoComplete="new-password"
+          />
+          <AuthSubmitButton icon={false}>Save new password</AuthSubmitButton>
+        </form>
+      ) : null}
+    </AuthScreen>
   );
 }

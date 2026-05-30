@@ -2,7 +2,6 @@ import "server-only";
 import { cookies } from "next/headers";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { getRuntimeEnv } from "@/lib/env";
-import fs from "fs";
 
 export async function createSupabaseServerClient() {
   const env = getRuntimeEnv();
@@ -25,14 +24,6 @@ export async function createSupabaseServerClient() {
           });
         } catch {
           // Server Components cannot always mutate cookies; middleware refresh handles persistence.
-          try {
-            const logDir = './tmp';
-            if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
-            const msg = `[${new Date().toISOString()}] Failed to set cookies in createSupabaseServerClient setAll\n`;
-            fs.appendFileSync(`${logDir}/supabase-cookie-errors.log`, msg);
-          } catch (e) {
-            // best-effort logging, ignore failures
-          }
         }
       },
     },

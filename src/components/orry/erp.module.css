@@ -1,0 +1,435 @@
+.shell {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f7f9fc 0%, #eef3fb 100%);
+  color: #1f2937;
+}
+
+.frame {
+  margin: 0 auto;
+  max-width: 1680px;
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 24px;
+  padding: 24px;
+}
+
+.sidebar {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  padding: 20px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid #dbe4f0;
+  box-shadow: 0 24px 70px rgba(73, 92, 122, 0.12);
+}
+
+.brandEyebrow,
+.sectionLabel,
+.cardLabel,
+.tableHint,
+.activityTime {
+  color: #64748b;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.brandTitle {
+  margin: 8px 0 4px;
+  font-size: 26px;
+  line-height: 1.15;
+}
+
+.brandText,
+.sectionText,
+.activityDetail,
+.pageSummary {
+  margin: 0;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.navGroup {
+  margin-top: 22px;
+}
+
+.navList {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 14px;
+  padding: 10px 12px;
+  color: #1f2937;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.navLink:hover,
+.navLinkActive {
+  background: #0f172a;
+  color: #f8fafc;
+  transform: translateX(2px);
+}
+
+.content {
+  min-width: 0;
+  display: grid;
+  gap: 20px;
+}
+
+.topbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #dbe4f0;
+  box-shadow: 0 24px 70px rgba(73, 92, 122, 0.08);
+}
+
+.searchRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search {
+  width: min(420px, 100%);
+  border: 1px solid #d6deec;
+  background: #f8fbff;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font: inherit;
+}
+
+.search:focus {
+  outline: 2px solid #93c5fd;
+  outline-offset: 1px;
+}
+
+.topbarMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.iconChip,
+.userChip,
+.infoCard,
+.tableCard,
+.activityPanel,
+.emptyState {
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #dbe4f0;
+  box-shadow: 0 20px 55px rgba(73, 92, 122, 0.08);
+}
+
+.iconChip,
+.userChip {
+  padding: 10px 14px;
+}
+
+.layoutGrid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) 320px;
+}
+
+.mainStack {
+  display: grid;
+  gap: 20px;
+}
+
+.hero {
+  padding: 24px;
+}
+
+.heroHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.heroTitle {
+  margin: 10px 0 6px;
+  font-size: clamp(30px, 3vw, 42px);
+  line-height: 1.08;
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.infoCard {
+  padding: 18px;
+}
+
+.cardValue {
+  display: block;
+  margin: 10px 0 4px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.cardHint {
+  margin: 0;
+  color: #475569;
+  font-size: 14px;
+}
+
+.toneOk {
+  color: #15803d;
+}
+
+.toneWarning {
+  color: #b45309;
+}
+
+.toneCritical {
+  color: #b91c1c;
+}
+
+.toneNeutral {
+  color: #475569;
+}
+
+.tabStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tab {
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid #d7e0ee;
+  background: #fff;
+  color: #334155;
+  font-weight: 600;
+}
+
+.tabActive {
+  background: #0f172a;
+  color: #f8fafc;
+  border-color: #0f172a;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.actionLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  border: 1px solid #d7e0ee;
+  color: #1f2937;
+  background: #fff;
+}
+
+.actionPrimary {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #f8fafc;
+}
+
+.actionSecondary {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.tableCard {
+  padding: 18px;
+  overflow: hidden;
+}
+
+.tableScroller {
+  max-height: 480px;
+  overflow: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+.table th,
+.table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #e5edf7;
+  text-align: left;
+  vertical-align: top;
+}
+
+.table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f8fbff;
+  color: #64748b;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tableRight {
+  text-align: right !important;
+}
+
+.cellPrimary {
+  font-weight: 700;
+}
+
+.cellSecondary {
+  color: #64748b;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: #eef2ff;
+}
+
+.badgeOk {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badgeWarning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badgeCritical {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badgeNeutral {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.activityPanel {
+  padding: 18px;
+  height: fit-content;
+}
+
+.activityList {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+
+.activityItem {
+  padding: 14px;
+  border-radius: 16px;
+  background: #f8fbff;
+  border: 1px solid #e5edf7;
+}
+
+.activityHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.overviewGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.moduleCard {
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #dbe4f0;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 20px 55px rgba(73, 92, 122, 0.08);
+}
+
+.moduleCard:hover {
+  transform: translateY(-2px);
+}
+
+@media (max-width: 1280px) {
+  .layoutGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1080px) {
+  .frame {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+
+  .kpiGrid,
+  .overviewGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .frame {
+    padding: 16px;
+  }
+
+  .topbar,
+  .hero {
+    padding: 18px;
+  }
+
+  .topbar,
+  .heroHeader {
+    grid-template-columns: 1fr;
+  }
+
+  .searchRow,
+  .topbarMeta {
+    flex-wrap: wrap;
+  }
+
+  .kpiGrid,
+  .overviewGrid {
+    grid-template-columns: 1fr;
+  }
+}

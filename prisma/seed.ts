@@ -1,4 +1,4 @@
-import { PrismaClient, ContactType, DocumentKind, DocumentReferenceType, DocumentStatus, PaymentDirection, PaymentMethod, ProductKind, RoleCode } from "@prisma/client";
+import { PrismaClient, ContactType, DocumentKind, DocumentReferenceType, DocumentStatus, LedgerAccountType, PaymentDirection, PaymentMethod, ProductKind, RoleCode } from "@prisma/client";
 import { hashPassword } from "../src/lib/security";
 
 const prisma = new PrismaClient();
@@ -8,6 +8,8 @@ async function main() {
   await prisma.documentReference.deleteMany();
   await prisma.documentAttachment.deleteMany();
   await prisma.paymentEntry.deleteMany();
+  await prisma.journalEntry.deleteMany();
+  await prisma.generalLedgerAccount.deleteMany();
   await prisma.documentLine.deleteMany();
   await prisma.businessDocument.deleteMany();
   await prisma.inventoryBalance.deleteMany();
@@ -230,6 +232,14 @@ async function main() {
   for (const counter of counters) {
     await prisma.documentCounter.create({ data: { ...counter, lastNumber: 12 } });
   }
+
+  const glAccounts = await Promise.all([
+    prisma.generalLedgerAccount.create({ data: { code: "1000", name: "Cash and Bank", type: LedgerAccountType.ASSET, balance: 1845000 } }),
+    prisma.generalLedgerAccount.create({ data: { code: "1100", name: "Accounts Receivable", type: LedgerAccountType.ASSET, balance: 403820 } }),
+    prisma.generalLedgerAccount.create({ data: { code: "2000", name: "Accounts Payable", type: LedgerAccountType.LIABILITY, balance: 208940 } }),
+    prisma.generalLedgerAccount.create({ data: { code: "4000", name: "Sales Revenue", type: LedgerAccountType.REVENUE, balance: 1235080 } }),
+    prisma.generalLedgerAccount.create({ data: { code: "5100", name: "Freight Expense", type: LedgerAccountType.EXPENSE, balance: 47280 } }),
+  ]);
 
   const proposal = await prisma.businessDocument.create({
     data: {
@@ -484,6 +494,43 @@ async function main() {
       { sourceDocumentId: billing.id, targetDocumentId: salesOrder.id, type: DocumentReferenceType.CONVERTED_FROM },
       { sourceDocumentId: receipt.id, targetDocumentId: billing.id, type: DocumentReferenceType.RELATED_TO }
     ]
+  });
+
+  await prisma.journalEntry.createMany({
+    data: [
+      {
+        id: "jr-001",
+        journalNumber: "GL-260401",
+        accountId: glAccounts[1].id,
+        description: "Invoice posting batch",
+        debit: 84500,
+        credit: 0,
+        status: DocumentStatus.ISSUED,
+        createdById: admin.id,
+        postedAt: new Date("2026-03-27"),
+      },
+      {
+        id: "jr-002",
+        journalNumber: "GL-260402",
+        accountId: glAccounts[3].id,
+        description: "Sales revenue recognition",
+        debit: 0,
+        credit: 84500,
+        status: DocumentStatus.ISSUED,
+        createdById: admin.id,
+        postedAt: new Date("2026-03-27"),
+      },
+      {
+        id: "jr-003",
+        journalNumber: "GL-260403",
+        accountId: glAccounts[2].id,
+        description: "Packaging accrual",
+        debit: 0,
+        credit: 48200,
+        status: DocumentStatus.APPROVED,
+        createdById: admin.id,
+      },
+    ],
   });
 }
 

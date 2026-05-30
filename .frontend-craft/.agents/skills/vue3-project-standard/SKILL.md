@@ -459,7 +459,7 @@ describe('UserForm', () => {
 });
 ```
 
-### Store 测试
+### Store
 
 ```typescript
 describe('authStore', () => {
